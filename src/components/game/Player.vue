@@ -5,12 +5,14 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, onUnmounted} from "vue";
+import { onMounted, onUnmounted } from "vue";
 import keeper from "../../assets/keeper.png";
 import { usePlayerStore } from "../../store/player.ts";
-import {handleKeyup} from "../event/event.ts";
+import { handleKeyup } from "../event/event.ts";
+import { usePosition } from "../../composables/usePosition.ts";
 
-const { position } = usePosition()
+const { player } = usePlayerStore()
+const { position } = usePosition(player)
 
 onMounted(() => {
   window.addEventListener("keyup", handleKeyup);
@@ -19,21 +21,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("keyup", handleKeyup);
 });
-
-
-function usePosition() {
-  const { player } = usePlayerStore();
-
-  const STEP = 32;
-  const position = computed(() => {
-    return {
-      left: player.x * STEP + "px",
-      top: player.y * STEP + "px"
-    }
-  })
-
-  return { position }
-}
 
 </script>
 
