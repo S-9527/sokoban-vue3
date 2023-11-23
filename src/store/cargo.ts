@@ -1,4 +1,6 @@
 import {defineStore} from "pinia";
+import {reactive} from "vue";
+import {Position} from "../composables/usePosition.ts";
 
 interface Cargo {
     x: number,
@@ -6,10 +8,24 @@ interface Cargo {
 }
 
 export const useCargoStore = defineStore('cargo',() => {
-    const cargos: Cargo[] = [
-        { x: 2, y: 2 },
-        { x: 3, y: 3 },
-    ]
+    const cargos: Cargo[] = reactive([])
 
-    return { cargos }
+    function createCargo({x, y}: {x: number, y: number}):Cargo {
+        return { x, y }
+    }
+
+    function addCargo(cargo: Cargo) {
+        cargos.push(cargo)
+    }
+
+    function findCargo(position: Position):Cargo | undefined {
+        return cargos.find(cargo => cargo.x === position.x && cargo.y === position.y)
+    }
+
+    return {
+        addCargo,
+        createCargo,
+        findCargo,
+        cargos
+    }
 })
