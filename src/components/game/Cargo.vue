@@ -1,21 +1,22 @@
 <template>
   <div class="absolute" :style="position">
-    <img :src="Cargo" alt="cargo">
+    <img :src="cargo.onTarget ? CargoOnTarget : _Cargo" alt="cargo">
   </div>
 </template>
 
 <script lang="ts" setup>
-import Cargo from '../../assets/cargo.png'
+import _Cargo from '../../assets/cargo.png'
+import { type Cargo } from '../../store/cargo'
+import CargoOnTarget from '../../assets/cargo_on_target.png'
 import { usePosition } from "../../composables/usePosition.ts";
 
 interface Props {
-  x: number,
-  y: number
+  cargo: Cargo
 }
 
 const props = defineProps<Props>()
 
-const { position } = usePosition(props)
+const { position } = usePosition(props.cargo)
 
 </script>
 

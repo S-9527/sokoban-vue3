@@ -2,17 +2,19 @@ import {defineStore} from "pinia";
 import {reactive} from "vue";
 import {Position} from "../composables/usePosition.ts";
 import {useMapStore} from "./map.ts";
+import {useTargetStore} from "./target.ts";
 
-interface Cargo {
+export interface Cargo {
     x: number,
-    y: number
+    y: number,
+    onTarget: boolean
 }
 
 export const useCargoStore = defineStore('cargo',() => {
     const cargos: Cargo[] = reactive([])
 
     function createCargo({x, y}: {x: number, y: number}):Cargo {
-        return { x, y }
+        return { x, y, onTarget: false }
     }
 
     function addCargo(cargo: Cargo) {
@@ -36,7 +38,14 @@ export const useCargoStore = defineStore('cargo',() => {
         cargo.x += dx;
         cargo.y += dy;
 
+        detectionTarget(cargo);
+
         return true;
+    }
+
+    function detectionTarget(cargo: Cargo) {
+        const { findTarget } = useTargetStore();
+        cargo.onTarget = !!findTarget(cargo);
     }
 
     return {
