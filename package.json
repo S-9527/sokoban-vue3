@@ -16,6 +16,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",
     "autoprefixer": "^10.4.16",
+    "happy-dom": "^12.10.3",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
