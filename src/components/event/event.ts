@@ -1,4 +1,5 @@
 import { usePlayerStore } from "../../store/player.ts";
+import { useGameStore } from "../../store/game.ts";
 
 export function handleKeyup(e: KeyboardEvent) {
     const {
@@ -23,4 +24,7 @@ export function handleKeyup(e: KeyboardEvent) {
             movePlayerToDown();
             break;
     }
+
+    const { detectionGameCompleted } = useGameStore();
+    detectionGameCompleted();
 }
