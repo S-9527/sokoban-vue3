@@ -20,17 +20,13 @@ import Target from "./Target.vue";
 import { useCargoStore } from '../../store/cargo.ts'
 import { useTargetStore } from "../../store/target.ts";
 import { useGameStore } from "../../store/game.ts";
+import { levelGameData } from "../../data";
 
-const { cargos,addCargo,createCargo } = useCargoStore()
-const { game } = useGameStore();
+const { game,setupGame } = useGameStore();
+const { cargos } = useCargoStore();
+const { targets } = useTargetStore();
 
-addCargo(createCargo({ x: 2, y: 2 }));
-addCargo(createCargo({ x: 3, y: 3 }));
-
-const { targets,addTarget, createTarget } = useTargetStore();
-
-addTarget(createTarget({ x:4, y:3 }));
-addTarget(createTarget({ x:6, y:3 }));
+setupGame(levelGameData)
 
 </script>
 
