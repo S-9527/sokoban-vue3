@@ -1,0 +1,19 @@
+<template>
+  <div class="container">
+    <div v-for="(row, i) in map" class="flex">
+      <div v-for="(col, j) in map[i]">
+        <MapBlock :x="j" :y="i"></MapBlock>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import MapBlock from "./MapBlock.vue";
+import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
+
+const { map } = useMapEditorStore();
+
+</script>
+
+<style scoped></style>
