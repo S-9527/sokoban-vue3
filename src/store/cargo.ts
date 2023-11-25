@@ -4,7 +4,9 @@ import {Position} from "../composables/usePosition.ts";
 import {useMapStore} from "./map.ts";
 import {useTargetStore} from "./target.ts";
 
+let Id:number = 1;
 export interface Cargo {
+    id: number,
     x: number,
     y: number,
     onTarget: boolean
@@ -14,7 +16,7 @@ export const useCargoStore = defineStore('cargo',() => {
     const cargos: Cargo[] = reactive([])
 
     function createCargo({x, y}: {x: number, y: number}):Cargo {
-        return { x, y, onTarget: false }
+        return { id: Id++, x, y, onTarget: false }
     }
 
     function addCargo(cargo: Cargo) {
@@ -48,7 +50,12 @@ export const useCargoStore = defineStore('cargo',() => {
         cargo.onTarget = !!findTarget(cargo);
     }
 
+    function cleanAllCargos() {
+        cargos.splice(0, cargos.length);
+    }
+
     return {
+        cleanAllCargos,
         addCargo,
         createCargo,
         findCargo,
