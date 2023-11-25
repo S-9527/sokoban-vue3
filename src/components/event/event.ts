@@ -1,5 +1,5 @@
-import { usePlayerStore } from "../../store/player.ts";
-import { useGameStore } from "../../store/game.ts";
+import { usePlayerStore } from "@/store/player.ts";
+import { useGameStore } from "@/store/game.ts";
 
 export function handleKeyup(e: KeyboardEvent) {
     const {

@@ -16,7 +16,7 @@
 <script lang="ts" setup>
 import floor from "../../assets/floor.png";
 import wall from "../../assets/wall.png";
-import { useMapStore, MapTile } from "../../store/map";
+import { useMapStore, MapTile } from "@/store/map.ts";
 const { map } = useMapStore();
 </script>
 
