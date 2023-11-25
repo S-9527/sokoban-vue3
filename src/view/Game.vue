@@ -13,10 +13,10 @@
 </template>
 
 <script lang="ts" setup>
-import Map from "./Map.vue";
-import Player from "./Player.vue";
-import Cargo from "./Cargo.vue";
-import Target from "./Target.vue";
+import Map from "@/components/game/Map.vue";
+import Player from "@/components/game/Player.vue";
+import Cargo from "@/components/game/Cargo.vue";
+import Target from "@/components/game/Target.vue";
 import { useCargoStore } from '@/store/cargo.ts'
 import { useTargetStore } from "@/store/target.ts";
 import { useGameStore } from "@/store/game.ts";
