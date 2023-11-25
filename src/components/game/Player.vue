@@ -7,9 +7,9 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
 import keeper from "../../assets/keeper.png";
-import { usePlayerStore } from "../../store/player.ts";
 import { handleKeyup } from "../event/event.ts";
-import { usePosition } from "../../composables/usePosition.ts";
+import { usePlayerStore } from "@/store/player.ts";
+import { usePosition } from "@/composables/usePosition.ts";
 
 const { player } = usePlayerStore()
 const { position } = usePosition(player)

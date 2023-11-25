@@ -6,7 +6,7 @@
 
 <script lang="ts" setup>
 import target from "../../assets/target.png";
-import { usePosition } from "../../composables/usePosition";
+import { usePosition } from "@/composables/usePosition.ts";
 
 interface Props {
   x: number;
