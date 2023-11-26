@@ -7,6 +7,8 @@ import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 describe("editElement", () => {
     beforeEach(() => {
         setActivePinia(createPinia())
+        const { initMap } = useMapEditorStore();
+        initMap();
     })
 
     it('should change to wall when current selected element is wall', () => {

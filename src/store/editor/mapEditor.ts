@@ -1,14 +1,76 @@
-import { defineStore } from "pinia";
-import { reactive } from "vue";
-import { type Map } from "@/store/map";
+import {defineStore} from "pinia";
+import {reactive, ref} from "vue";
+import {type Map, MapTile} from "@/store/map";
 
 export const useMapEditorStore = defineStore('mapEditor', () => {
-    const map = reactive<Map>([
-        [2, 2, 2, 2, 2, 2],
-        [2, 2, 2, 2, 2, 2],
-        [2, 2, 2, 2, 2, 2],
-        [2, 2, 2, 2, 2, 2]
-    ]);
+    const map = reactive<Map>([]);
 
-    return { map }
+    const row = ref<number>(8);
+    const col = ref<number>(8);
+
+    function initMap(_row?: number, _col?: number) {
+        row.value = _row ?? row.value;
+        col.value = _col ?? col.value;
+
+        for (let i = 0; i < row.value; i++) {
+            let cells = new Array(col.value).fill(MapTile.FLOOR);
+            map.push(cells);
+        }
+    }
+
+    function updateMapRow() {
+        const oldRow = map.length;
+        const col = map[0].length;
+
+        if (oldRow < row.value) {
+            const diff = row.value - oldRow;
+
+            for (let i = 0; i < diff; i++) {
+                map.push(new Array(col).fill(MapTile.FLOOR));
+            }
+        }
+
+        if (oldRow > row.value) {
+            const diff = oldRow - row.value;
+            map.splice(map.length - diff, map.length);
+        }
+    }
+
+    function updateMapCol() {
+        const oldCol = map[0].length;
+        if (col.value > oldCol) {
+            const diff = col.value - oldCol;
+
+            map.forEach((cells) => {
+                cells.push(...new Array(diff).fill(MapTile.FLOOR));
+            });
+        }
+
+        if (col.value < oldCol) {
+            const diff = oldCol - col.value;
+
+            map.forEach((cells) => {
+                cells.splice(cells.length - diff, cells.length);
+            });
+        }
+    }
+
+    function setRow(_row: number) {
+        row.value = _row;
+    }
+
+    function setCol(_col: number) {
+        col.value = _col;
+    }
+
+    return {
+        map,
+        row,
+        col,
+        setCol,
+        setRow,
+        updateMapCol,
+        updateMapRow,
+        initMap,
+    }
 })
