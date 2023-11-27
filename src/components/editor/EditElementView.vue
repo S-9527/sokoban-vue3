@@ -13,17 +13,19 @@
   <div class="flex">
     <h4>玩家</h4>
     <EditElement :edit-element="playerEditElement"></EditElement>
+    <div class="bg-amber-400">当前选择的: {{ selectedEditElementName }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
 import EditElement from "./EditElement.vue";
-import {floorEditElement, playerEditElement, wallEditElement} from "@/store/editor/EditElement.ts";
+import { floorEditElement, playerEditElement, useEditElementStore, wallEditElement } from "@/store/editor/EditElement.ts";
 import { useMapEditorStore } from "@/store/editor/mapEditor.ts";
-import { toRefs, watchEffect } from "vue";
+import { computed, toRefs, watchEffect } from "vue";
 
 const { initMap, updateMapRow, updateMapCol } = useMapEditorStore();
 const { row, col } = toRefs(useMapEditorStore())
+const { getCurrentSelectedEditElement } = useEditElementStore();
 
 initMap();
 
@@ -37,6 +39,9 @@ watchEffect(() => {
   updateMapCol();
 })
 
+const selectedEditElementName = computed(() => {
+  return getCurrentSelectedEditElement()?.name || "没有选中";
+})
 </script>
 
 <style scoped></style>
