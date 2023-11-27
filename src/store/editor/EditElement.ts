@@ -7,13 +7,16 @@ import wall from '../../assets/wall.png'
 import floor from '../../assets/floor.png'
 import keeper from '../../assets/keeper.png'
 import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
+import {ref} from "vue";
 
 export interface EditElement {
+    name: string,
     img: string,
     execute: (position: Position) => void
 }
 
 export const wallEditElement: EditElement = {
+    name: '墙',
     img: wall,
     execute: (position) => {
         const { map } = useMapEditorStore();
@@ -22,6 +25,7 @@ export const wallEditElement: EditElement = {
 }
 
 export const floorEditElement: EditElement = {
+    name: '地板',
     img: floor,
     execute: (position) => {
         const { map } = useMapEditorStore();
@@ -30,6 +34,7 @@ export const floorEditElement: EditElement = {
 }
 
 export const playerEditElement: EditElement = {
+    name: '玩家',
     img: keeper,
     execute: (position) => {
         const { player } = useEditPlayerStore();
@@ -40,14 +45,14 @@ export const playerEditElement: EditElement = {
 
 
 export const useEditElementStore = defineStore('edit-element', () => {
-    let currentSelectedEditElement: EditElement;
+    let currentSelectedEditElement = ref<EditElement | undefined>();
 
-    function getCurrentSelectedEditElement(): EditElement {
-        return currentSelectedEditElement;
+    function getCurrentSelectedEditElement(): EditElement | undefined {
+        return currentSelectedEditElement.value;
     }
 
     function setCurrentSelectedEditElement(editElement: EditElement) {
-        currentSelectedEditElement = editElement;
+        currentSelectedEditElement.value = editElement;
     }
 
     return {
