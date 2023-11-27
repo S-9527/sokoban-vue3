@@ -1,10 +1,14 @@
 <template>
-  <div class="border border-white" @click="handleClick">
+  <div class="border border-white select-none"
+       @click="handleClick"
+       @mousedown="handleMouseDown"
+       @mousemove="handleMouseMove"
+  >
     <template v-if="map[props.y][props.x] === MapTile.WALL">
-      <img :src="wall" alt="wall">
+      <img :src="wall" alt="wall" draggable="false">
     </template>
     <template v-else-if="map[props.y][props.x] === MapTile.FLOOR">
-      <img :src="floor" alt="floor">
+      <img :src="floor" alt="floor" draggable="false">
     </template>
   </div>
 </template>
@@ -15,6 +19,7 @@ import floor from '../../assets/floor.png'
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {MapTile} from "@/store/map.ts";
 import {useEditElementStore} from "@/store/editor/EditElement.ts";
+import {useDrag} from "@/composables/useDrag.ts";
 
 interface Props {
   x: number;
@@ -23,11 +28,28 @@ interface Props {
 
 const { map } = useMapEditorStore();
 const { getCurrentSelectedEditElement } = useEditElementStore();
+const { startDrag, stopDrag, isDragging } = useDrag()
 
 const props = defineProps<Props>();
 
 const handleClick = () => {
-  getCurrentSelectedEditElement().execute(props);
+  getCurrentSelectedEditElement()?.execute(props);
+}
+
+const handleMouseUp = () => {
+  stopDrag();
+  window.removeEventListener("mouseup",handleMouseUp);
+}
+
+const handleMouseDown = () => {
+  startDrag();
+  window.addEventListener("mouseup",handleMouseUp);
+}
+
+const handleMouseMove = () => {
+  if (isDragging()) {
+    getCurrentSelectedEditElement()?.execute(props);
+  }
 }
 </script>
 
