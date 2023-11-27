@@ -5,6 +5,8 @@ import {defineStore} from "pinia";
 
 import wall from '../../assets/wall.png'
 import floor from '../../assets/floor.png'
+import keeper from '../../assets/keeper.png'
+import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 
 export interface EditElement {
     img: string,
@@ -24,6 +26,15 @@ export const floorEditElement: EditElement = {
     execute: (position) => {
         const { map } = useMapEditorStore();
         map[position.y][position.x] = MapTile.FLOOR;
+    }
+}
+
+export const playerEditElement: EditElement = {
+    img: keeper,
+    execute: (position) => {
+        const { player } = useEditPlayerStore();
+        player.x = position.x;
+        player.y = position.y;
     }
 }
 
