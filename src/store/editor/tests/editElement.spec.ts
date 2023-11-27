@@ -1,8 +1,9 @@
 import {beforeEach, describe, it,expect} from "vitest";
 import {createPinia, setActivePinia} from "pinia";
-import {floorEditElement, useEditElementStore, wallEditElement} from "@/store/editor/EditElement.ts";
+import {floorEditElement, playerEditElement, useEditElementStore, wallEditElement} from "@/store/editor/EditElement.ts";
 import {MapTile} from "@/store/map.ts";
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
+import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 
 describe("editElement", () => {
     beforeEach(() => {
@@ -31,5 +32,21 @@ describe("editElement", () => {
         getCurrentSelectedEditElement().execute({ x:1, y:1 });
 
         expect(map[1][1]).toBe(MapTile.FLOOR);
+    });
+
+    it("should update position of player when current selected element is player", () => {
+        const { player } = useEditPlayerStore();
+        const { getCurrentSelectedEditElement, setCurrentSelectedEditElement } = useEditElementStore();
+
+        setCurrentSelectedEditElement(playerEditElement);
+
+        const position = {
+            x: 1,
+            y: 1,
+        };
+        getCurrentSelectedEditElement().execute(position);
+
+        expect(player.x).toBe(position.x);
+        expect(player.y).toBe(position.y);
     });
 })
