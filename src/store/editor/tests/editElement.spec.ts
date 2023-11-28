@@ -1,9 +1,16 @@
 import {beforeEach, describe, it,expect} from "vitest";
 import {createPinia, setActivePinia} from "pinia";
-import {floorEditElement, playerEditElement, useEditElementStore, wallEditElement} from "@/store/editor/EditElement.ts";
+import {
+    cargoEditElement,
+    floorEditElement,
+    playerEditElement,
+    useEditElementStore,
+    wallEditElement
+} from "@/store/editor/EditElement.ts";
 import {MapTile} from "@/store/map.ts";
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
+import {useEditCargoStore} from "@/store/editor/editCargo.ts";
 
 describe("editElement", () => {
     beforeEach(() => {
@@ -18,7 +25,7 @@ describe("editElement", () => {
 
         setCurrentSelectedEditElement(wallEditElement);
 
-        getCurrentSelectedEditElement().execute({ x:1, y:1 });
+        getCurrentSelectedEditElement()!.execute({ x:1, y:1 });
 
         expect(map[1][1]).toBe(MapTile.WALL);
     });
@@ -29,7 +36,7 @@ describe("editElement", () => {
 
         setCurrentSelectedEditElement(floorEditElement);
 
-        getCurrentSelectedEditElement().execute({ x:1, y:1 });
+        getCurrentSelectedEditElement()!.execute({ x:1, y:1 });
 
         expect(map[1][1]).toBe(MapTile.FLOOR);
     });
@@ -44,9 +51,26 @@ describe("editElement", () => {
             x: 1,
             y: 1,
         };
-        getCurrentSelectedEditElement().execute(position);
+        getCurrentSelectedEditElement()!.execute(position);
 
         expect(player.x).toBe(position.x);
         expect(player.y).toBe(position.y);
+    });
+
+    it("should add a cargo when current selected element is cargo", () => {
+        const { cargos } = useEditCargoStore();
+        const { getCurrentSelectedEditElement, setCurrentSelectedEditElement } =
+            useEditElementStore();
+
+        setCurrentSelectedEditElement(cargoEditElement);
+
+        const position = {
+            x: 1,
+            y: 1,
+        };
+        getCurrentSelectedEditElement()!.execute(position);
+
+        expect(cargos[0].x).toBe(position.x);
+        expect(cargos[0].y).toBe(position.y);
     });
 })
