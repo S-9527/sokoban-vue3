@@ -6,8 +6,10 @@ import {defineStore} from "pinia";
 import wall from '../../assets/wall.png'
 import floor from '../../assets/floor.png'
 import keeper from '../../assets/keeper.png'
+import cargo from '../../assets/cargo.png'
 import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 import {ref} from "vue";
+import {useEditCargoStore} from "@/store/editor/editCargo.ts";
 
 export interface EditElement {
     name: string,
@@ -40,6 +42,15 @@ export const playerEditElement: EditElement = {
         const { player } = useEditPlayerStore();
         player.x = position.x;
         player.y = position.y;
+    }
+}
+
+export const cargoEditElement: EditElement = {
+    name: '箱子',
+    img: cargo,
+    execute: (position) => {
+        const { addCargo, createCargo } = useEditCargoStore();
+        addCargo(createCargo({ x: position.x, y: position.y }));
     }
 }
 

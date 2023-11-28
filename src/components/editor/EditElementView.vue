@@ -10,16 +10,23 @@
     <EditElement :edit-element="floorEditElement"></EditElement>
   </div>
 
-  <div class="flex">
+  <div class="flex space-x-2">
     <h4>玩家</h4>
     <EditElement :edit-element="playerEditElement"></EditElement>
+    <EditElement :edit-element="cargoEditElement"></EditElement>
     <div class="bg-amber-400">当前选择的: {{ selectedEditElementName }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
 import EditElement from "./EditElement.vue";
-import { floorEditElement, playerEditElement, useEditElementStore, wallEditElement } from "@/store/editor/EditElement.ts";
+import {
+  cargoEditElement,
+  floorEditElement,
+  playerEditElement,
+  useEditElementStore,
+  wallEditElement
+} from "@/store/editor/EditElement.ts";
 import { useMapEditorStore } from "@/store/editor/mapEditor.ts";
 import { computed, toRefs, watchEffect } from "vue";
 
