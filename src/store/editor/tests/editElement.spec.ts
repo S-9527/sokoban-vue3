@@ -3,7 +3,7 @@ import {createPinia, setActivePinia} from "pinia";
 import {
     cargoEditElement,
     floorEditElement,
-    playerEditElement,
+    playerEditElement, targetEditElement,
     useEditElementStore,
     wallEditElement
 } from "@/store/editor/EditElement.ts";
@@ -11,6 +11,7 @@ import {MapTile} from "@/store/map.ts";
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 import {useEditCargoStore} from "@/store/editor/editCargo.ts";
+import {useEditTargetStore} from "@/store/editor/editTarget.ts";
 
 describe("editElement", () => {
     beforeEach(() => {
@@ -72,5 +73,22 @@ describe("editElement", () => {
 
         expect(cargos[0].x).toBe(position.x);
         expect(cargos[0].y).toBe(position.y);
+    });
+
+    it("should add a target when current selected element is target", () => {
+        const { targets } = useEditTargetStore();
+        const { getCurrentSelectedEditElement, setCurrentSelectedEditElement } =
+            useEditElementStore();
+
+        setCurrentSelectedEditElement(targetEditElement);
+
+        const position = {
+            x: 1,
+            y: 1,
+        };
+        getCurrentSelectedEditElement()!.execute(position);
+
+        expect(targets[0].x).toBe(position.x);
+        expect(targets[0].y).toBe(position.y);
     });
 })

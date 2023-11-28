@@ -14,6 +14,7 @@
     <h4>玩家</h4>
     <EditElement :edit-element="playerEditElement"></EditElement>
     <EditElement :edit-element="cargoEditElement"></EditElement>
+    <EditElement :edit-element="targetEditElement"></EditElement>
     <div class="bg-amber-400">当前选择的: {{ selectedEditElementName }}</div>
   </div>
 </template>
@@ -23,7 +24,7 @@ import EditElement from "./EditElement.vue";
 import {
   cargoEditElement,
   floorEditElement,
-  playerEditElement,
+  playerEditElement, targetEditElement,
   useEditElementStore,
   wallEditElement
 } from "@/store/editor/EditElement.ts";
