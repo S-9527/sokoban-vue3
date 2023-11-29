@@ -47,7 +47,7 @@ const handleMouseDown = () => {
 }
 
 const handleMouseMove = () => {
-  if (isDragging()) {
+  if (isDragging() && getCurrentSelectedEditElement()?.canDrag) {
     getCurrentSelectedEditElement()?.execute(props);
   }
 }
