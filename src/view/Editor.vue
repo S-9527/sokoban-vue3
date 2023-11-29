@@ -11,7 +11,7 @@
           <TargetEditor :target="target"></TargetEditor>
         </template>
       </div>
-      <div>数据展示区</div>
+      <div><MapDataDisplay></MapDataDisplay></div>
       <div><EditElementView></EditElementView></div>
     </div>
   </div>
@@ -25,6 +25,7 @@ import CargoEditor from "@/components/editor/CargoEditor.vue";
 import {useEditCargoStore} from "@/store/editor/editCargo.ts";
 import {useEditTargetStore} from "@/store/editor/editTarget.ts";
 import TargetEditor from "@/components/editor/TargetEditor.vue";
+import MapDataDisplay from "@/components/editor/MapDataDisplay.vue";
 
 const { cargos } = useEditCargoStore();
 const { targets } = useEditTargetStore();
