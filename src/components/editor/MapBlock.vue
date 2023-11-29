@@ -1,5 +1,5 @@
 <template>
-  <div class="border border-white select-none"
+  <div class="w-[32px] h-[32px] bg-white border border-sky-500 select-none"
        @click="handleClick"
        @mousedown="handleMouseDown"
        @mousemove="handleMouseMove"

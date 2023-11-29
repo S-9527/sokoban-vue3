@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import _Cargo from "../../assets/cargo.png";
 import {type EditCargo, useEditCargoStore} from "@/store/editor/editCargo.ts";
-import { STEP_EDIT, usePosition } from "@/composables/usePosition.ts";
+import { usePosition } from "@/composables/usePosition.ts";
 
 interface Props {
   cargo: EditCargo;
@@ -15,7 +15,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { position } = usePosition(props.cargo, STEP_EDIT)
+const { position } = usePosition(props.cargo)
 const { removeCargo } = useEditCargoStore();
 
 const handleDblClick = () => {

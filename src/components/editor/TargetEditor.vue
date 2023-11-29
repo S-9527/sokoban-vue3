@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import target from '../../assets/target.png'
-import {STEP_EDIT, usePosition} from "@/composables/usePosition.ts";
+import {usePosition} from "@/composables/usePosition.ts";
 import {EditTarget, useEditTargetStore} from "@/store/editor/editTarget.ts";
 
 interface Props {
@@ -15,7 +15,7 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { position } = usePosition(props.target,STEP_EDIT)
+const { position } = usePosition(props.target)
 const { removeTarget } = useEditTargetStore();
 
 const handleDbClick = () => {
