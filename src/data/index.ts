@@ -1,4 +1,4 @@
-import { type Map } from "../store/map.ts";
+import {type Map} from "../store/map.ts";
 
 export interface LevelGameData {
     map: Map;
@@ -97,4 +97,56 @@ export const gameData: GameData = [
             },
         ],
     },
+    {
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 2, 2, 2, 2, 2, 2, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        player: {
+            x: 3,
+            y: 3
+        },
+        cargos: [
+            {
+                x: 2,
+                y: 4
+            },
+            {
+                x: 3,
+                y: 4
+            },
+            {
+                x: 4,
+                y: 4
+            },
+            {
+                x: 5,
+                y: 4
+            }
+        ],
+        targets: [
+            {
+                x: 2,
+                y: 5
+            },
+            {
+                x: 4,
+                y: 5
+            },
+            {
+                x: 3,
+                y: 5
+            },
+            {
+                x: 5,
+                y: 5
+            }
+        ]
+    }
 ];
