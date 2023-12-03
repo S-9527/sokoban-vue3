@@ -17,7 +17,7 @@
 import wall from '../../assets/wall.png'
 import floor from '../../assets/floor.png'
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
-import {MapTile} from "@/store/map.ts";
+import {MapTile} from "@/store/game/map.ts";
 import {useEditElementStore} from "@/store/editor/EditElement.ts";
 import {useDrag} from "@/composables/useDrag.ts";
 

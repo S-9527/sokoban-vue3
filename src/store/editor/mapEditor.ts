@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive, ref} from "vue";
-import {type Map, MapTile} from "@/store/map";
+import {type Map, MapTile} from "@/store/game/map.ts";
 
 export const useMapEditorStore = defineStore('mapEditor', () => {
     const map = reactive<Map>([]);

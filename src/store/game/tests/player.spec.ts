@@ -1,7 +1,7 @@
 import { it, describe, expect, beforeEach } from "vitest";
 import { usePlayerStore } from "../player.ts";
 import { createPinia, setActivePinia } from "pinia";
-import { handleKeyup } from "../../components/event/event.ts";
+import { handleKeyup } from "@/components/event/event.ts";
 import { useMapStore } from "../map.ts";
 import {useCargoStore} from "../cargo.ts";
 

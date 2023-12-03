@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive} from "vue";
-import {Position} from "../composables/usePosition.ts";
+import {Position} from "@/composables/usePosition.ts";
 import {useMapStore} from "./map.ts";
 import {useTargetStore} from "./target.ts";
 import {generateId} from "@/utils/id.ts";
