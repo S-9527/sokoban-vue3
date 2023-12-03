@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {STEP_EDIT, usePosition} from "../usePosition.ts";
+import { usePosition} from "../usePosition.ts";
 import { reactive } from "vue";
 
 describe('usePosition', () => {
@@ -14,16 +14,6 @@ describe('usePosition', () => {
         expect(position.value).toEqual({
             left: '32px',
             top: '32px'
-        });
-    });
-
-    it('should set step ', () => {
-        const pos = { x: 1, y: 1 };
-        const { position } = usePosition(pos, STEP_EDIT);
-
-        expect(position.value).toEqual({
-            left: "34px",
-            top: "34px",
         });
     });
 

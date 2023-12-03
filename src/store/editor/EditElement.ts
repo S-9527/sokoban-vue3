@@ -1,6 +1,6 @@
 import {Position} from "@/composables/usePosition.ts";
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
-import {MapTile} from "@/store/map.ts";
+import {MapTile} from "@/store/game/map.ts";
 import {defineStore} from "pinia";
 
 import wall from '../../assets/wall.png'

@@ -7,7 +7,7 @@
 <script lang="ts" setup>
 import _Cargo from '../../assets/cargo.png'
 import CargoOnTarget from '../../assets/cargo_on_target.png'
-import { type Cargo } from '@/store/cargo.ts'
+import { type Cargo } from '@/store/game/cargo.ts'
 import { usePosition } from "@/composables/usePosition.ts";
 
 interface Props {

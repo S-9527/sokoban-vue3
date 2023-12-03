@@ -5,7 +5,7 @@ import {useTargetStore} from "../target.ts";
 import {useGameStore} from "../game.ts";
 import {useMapStore} from "../map.ts";
 import {usePlayerStore} from "../player.ts";
-import {LevelGameData} from '../../data'
+import {LevelGameData} from '@/data'
 
 const firstLevelGameData = {
     player: {

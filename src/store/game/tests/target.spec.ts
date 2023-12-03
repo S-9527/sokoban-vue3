@@ -1,6 +1,6 @@
 import { it, expect, describe, beforeEach } from "vitest";
 
-import { useTargetStore } from "../target";
+import { useTargetStore } from "../target.ts";
 import { createPinia, setActivePinia } from "pinia";
 
 describe("target", () => {

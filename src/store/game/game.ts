@@ -4,7 +4,7 @@ import { useCargoStore } from "./cargo.ts";
 import { usePlayerStore } from "./player.ts";
 import { useMapStore } from "./map.ts";
 import { useTargetStore } from "./target.ts";
-import { GameData } from "../data";
+import { GameData } from "@/data";
 interface Game {
     isGameCompleted: boolean,
     level: number

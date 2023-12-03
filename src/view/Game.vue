@@ -17,9 +17,9 @@ import Map from "@/components/game/Map.vue";
 import Player from "@/components/game/Player.vue";
 import Cargo from "@/components/game/Cargo.vue";
 import Target from "@/components/game/Target.vue";
-import { useCargoStore } from '@/store/cargo.ts'
-import { useTargetStore } from "@/store/target.ts";
-import { useGameStore } from "@/store/game.ts";
+import { useCargoStore } from '@/store/game/cargo.ts'
+import { useTargetStore } from "@/store/game/target.ts";
+import { useGameStore } from "@/store/game/game.ts";
 import { gameData } from "@/data";
 
 const { game,setupGame,toNextLevel } = useGameStore();
