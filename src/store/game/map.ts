@@ -3,6 +3,7 @@ import { Position } from '../composables/usePosition.ts'
 import {reactive} from "vue";
 
 export enum MapTile {
+    EMPTY = 0,
     WALL = 1,
     FLOOR = 2,
 }
