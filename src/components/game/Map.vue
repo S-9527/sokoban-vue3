@@ -1,23 +1,35 @@
 <template>
-  <div>
-    <div v-for="(row, i) in map" class="flex">
-      <div v-for="(col, j) in map[i]">
-        <template v-if="map[i][j] === MapTile.WALL">
-          <img :src="wall" alt="wall"/>
-        </template>
-        <template v-else-if="map[i][j] === MapTile.FLOOR">
-          <img :src="floor" alt="floor"/>
-        </template>
+  <div class="map">
+    <div v-for="row in map" class="flex">
+      <div v-for="dot in row">
+        <component :is="getElementComponent(dot)"></component>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import floor from "../../assets/floor.png";
-import wall from "../../assets/wall.png";
-import { useMapStore, MapTile } from "@/store/map.ts";
+import { useMapStore, MapTile } from "@/store/game/map.ts";
+import { type Component } from "vue";
+import Wall from "@/components/game/Wall.vue";
+import Floor from "@/components/game/Floor.vue";
+import Empty from "@/components/game/Empty.vue";
+
 const { map } = useMapStore();
+
+const mapElement: Record<MapTile, Component> = {
+  [MapTile.WALL]: Wall,
+  [MapTile.FLOOR]: Floor,
+  [MapTile.EMPTY]: Empty
+}
+
+console.log(map)
+
+function getElementComponent(element: MapTile){
+  return mapElement[element];
+}
+
+
 </script>
 
 <style scoped></style>
