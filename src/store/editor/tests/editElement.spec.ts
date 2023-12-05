@@ -6,7 +6,7 @@ import {
     playerEditElement, targetEditElement,
     useEditElementStore,
     wallEditElement
-} from "@/store/editor/EditElement.ts";
+} from "@/store/editor/editElement.ts";
 import {MapTile} from "@/store/game/map.ts";
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";

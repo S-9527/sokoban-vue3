@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="map-container">
     <div v-for="(row, i) in map" class="flex">
       <div v-for="(col, j) in map[i]">
         <MapBlock :x="j" :y="i"></MapBlock>

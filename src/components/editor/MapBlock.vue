@@ -10,6 +10,7 @@
     <template v-else-if="map[props.y][props.x] === MapTile.FLOOR">
       <img :src="floor" alt="floor" draggable="false">
     </template>
+    <div v-else class="bg-red-500 w-[32px] h-[32px]"></div>
   </div>
 </template>
 
@@ -18,7 +19,7 @@ import wall from '../../assets/wall.png'
 import floor from '../../assets/floor.png'
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {MapTile} from "@/store/game/map.ts";
-import {useEditElementStore} from "@/store/editor/EditElement.ts";
+import {useEditElementStore} from "@/store/editor/editElement.ts";
 import {useDrag} from "@/composables/useDrag.ts";
 
 interface Props {
