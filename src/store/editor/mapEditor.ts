@@ -13,7 +13,7 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
         col.value = _col ?? col.value;
 
         for (let i = 0; i < row.value; i++) {
-            let cells = new Array(col.value).fill(MapTile.FLOOR);
+            let cells = new Array(col.value).fill(MapTile.EMPTY);
             map.push(cells);
         }
     }
@@ -26,7 +26,7 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
             const diff = row.value - oldRow;
 
             for (let i = 0; i < diff; i++) {
-                map.push(new Array(col).fill(MapTile.FLOOR));
+                map.push(new Array(col).fill(MapTile.EMPTY));
             }
         }
 
@@ -42,7 +42,7 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
             const diff = col.value - oldCol;
 
             map.forEach((cells) => {
-                cells.push(...new Array(diff).fill(MapTile.FLOOR));
+                cells.push(...new Array(diff).fill(MapTile.EMPTY));
             });
         }
 

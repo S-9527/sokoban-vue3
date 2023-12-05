@@ -1,6 +1,5 @@
 <template>
-  <div class="flex-auto">
-    <div>地图 json 显示区域</div>
+  <div class="flex-auto m-2">
     <textarea rows="10" cols="10" readonly>{{ gameData }}</textarea>
   </div>
 </template>

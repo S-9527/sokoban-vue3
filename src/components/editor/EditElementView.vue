@@ -1,22 +1,18 @@
 <template>
-  <h3>元素选择区</h3>
   <div class="m-2 space-y-2">
     <div>row: <input type="text" class="border border-blue-50" v-model="row" /></div>
     <div>col: <input type="text" class="border border-blue-50" v-model="col" /></div>
   </div>
+
   <div class="flex space-x-2 m-2">
-    <h4>地图</h4>
+    <EditElement :edit-element="playerEditElement"></EditElement>
     <EditElement :edit-element="wallEditElement"></EditElement>
     <EditElement :edit-element="floorEditElement"></EditElement>
-  </div>
-
-  <div class="flex space-x-2">
-    <h4>玩家</h4>
-    <EditElement :edit-element="playerEditElement"></EditElement>
     <EditElement :edit-element="cargoEditElement"></EditElement>
     <EditElement :edit-element="targetEditElement"></EditElement>
-    <div class="bg-amber-400">当前选择的: {{ selectedEditElementName }}</div>
   </div>
+
+  <div>当前选择的: {{ selectedEditElementName }}</div>
 </template>
 
 <script setup lang="ts">
@@ -27,7 +23,7 @@ import {
   playerEditElement, targetEditElement,
   useEditElementStore,
   wallEditElement
-} from "@/store/editor/EditElement.ts";
+} from "@/store/editor/editElement.ts";
 import { useMapEditorStore } from "@/store/editor/mapEditor.ts";
 import { computed, toRefs, watchEffect } from "vue";
 

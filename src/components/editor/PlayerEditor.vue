@@ -1,5 +1,5 @@
 <template>
-  <div class="absolute" :style="position">
+  <div class="absolute" :style="position" v-show="visible" @dblclick="handleDblClick">
     <img :src="keeper" alt="keeper" class="block">
   </div>
 </template>
@@ -8,10 +8,14 @@
 import keeper from '../../assets/keeper.png'
 import { usePosition } from "@/composables/usePosition.ts";
 import { useEditPlayerStore } from "@/store/editor/editPlayer.ts";
+import { toRefs } from "vue";
 
-const { player } = useEditPlayerStore();
-
+const { player, hidden } = useEditPlayerStore();
 const { position } = usePosition(player);
+const { visible } = toRefs(useEditPlayerStore())
+function handleDblClick() {
+  hidden()
+}
 
 </script>
 

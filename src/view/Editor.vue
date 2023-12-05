@@ -1,19 +1,17 @@
 <template>
-  <div class="container">
+  <div class="bg-white h-screen">
     <div class="flex">
-      <div class="w-4/6 bg-pink-400">
-        <MapEditor></MapEditor>
-        <PlayerEditor></PlayerEditor>
+      <MapEditor></MapEditor>
+      <PlayerEditor></PlayerEditor>
         <template v-for="cargo in cargos" :key="cargo.id">
           <CargoEditor :cargo="cargo"></CargoEditor>
         </template>
         <template v-for="target in targets" :key="target.id">
           <TargetEditor :target="target"></TargetEditor>
         </template>
-      </div>
-      <div><MapDataDisplay></MapDataDisplay></div>
-      <div><EditElementView></EditElementView></div>
+    <MapDataDisplay></MapDataDisplay>
     </div>
+    <div><EditElementView></EditElementView></div>
   </div>
 </template>
 

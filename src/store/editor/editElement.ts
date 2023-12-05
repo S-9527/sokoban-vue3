@@ -9,7 +9,7 @@ import keeper from '../../assets/keeper.png'
 import cargo from '../../assets/cargo.png'
 import target from '../../assets/target.png'
 import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
-import {ref} from "vue";
+import {ref, toRefs} from "vue";
 import {useEditCargoStore} from "@/store/editor/editCargo.ts";
 import {useEditTargetStore} from "@/store/editor/editTarget.ts";
 
@@ -43,11 +43,16 @@ export const floorEditElement: EditElement = {
 export const playerEditElement: EditElement = {
     name: '玩家',
     img: keeper,
-    canDrag: true,
+    canDrag: false,
     execute: (position) => {
         const { player } = useEditPlayerStore();
+        const { visible} = toRefs(useEditPlayerStore());
         player.x = position.x;
         player.y = position.y;
+
+        visible.value = true;
+
+        unset(position,MapTile.FLOOR)
     }
 }
 

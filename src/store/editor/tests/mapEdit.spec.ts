@@ -31,20 +31,20 @@ describe("mapEdit", () => {
             expect(map).toMatchInlineSnapshot(`
         [
           [
-            2,
-            2,
+            0,
+            0,
           ],
           [
-            2,
-            2,
+            0,
+            0,
           ],
           [
-            2,
-            2,
+            0,
+            0,
           ],
           [
-            2,
-            2,
+            0,
+            0,
           ],
         ]
       `);
@@ -61,9 +61,9 @@ describe("mapEdit", () => {
             expect(map).toMatchInlineSnapshot(`
         [
           [
-            2,
-            2,
-            2,
+            0,
+            0,
+            0,
           ],
         ]
       `);
@@ -82,14 +82,14 @@ describe("mapEdit", () => {
             expect(map).toMatchInlineSnapshot(`
         [
           [
-            2,
-            2,
-            2,
+            0,
+            0,
+            0,
           ],
           [
-            2,
-            2,
-            2,
+            0,
+            0,
+            0,
           ],
         ]
       `);
@@ -106,16 +106,16 @@ describe("mapEdit", () => {
             expect(map).toMatchInlineSnapshot(`
         [
           [
-            2,
-            2,
+            0,
+            0,
           ],
           [
-            2,
-            2,
+            0,
+            0,
           ],
           [
-            2,
-            2,
+            0,
+            0,
           ],
         ]
       `);
