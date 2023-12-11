@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { reactive } from "vue";
 import { useMapStore } from "./map.ts";
 import { useCargoStore } from "./cargo.ts";
+import {useGameStore} from "@/store/game/game.ts";
 
 interface Player {
     x: number,
@@ -33,6 +34,9 @@ export const usePlayerStore = defineStore('player', ()=> {
 
         player.x += dx;
         player.y += dy;
+
+        const { detectionGameCompleted } = useGameStore();
+        detectionGameCompleted();
     }
 
     function movePlayerToLeft() {
