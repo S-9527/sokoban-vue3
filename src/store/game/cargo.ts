@@ -23,6 +23,11 @@ export const useCargoStore = defineStore('cargo',() => {
         cargos.push(cargo)
     }
 
+    function modifyCargo({ x, y }: { x: number, y: number }) {
+        const cargo: Cargo =  { id: generateId(), x, y, onTarget: true }
+        cargos.forEach(c => c.x === cargo.x && c.y === cargo.y && Object.assign(c, cargo))
+    }
+
     function findCargo(position: Position):Cargo | undefined {
         return cargos.find(cargo => cargo.x === position.x && cargo.y === position.y)
     }
@@ -59,6 +64,7 @@ export const useCargoStore = defineStore('cargo',() => {
         addCargo,
         createCargo,
         findCargo,
+        modifyCargo,
         moveCargo,
         cargos
     }

@@ -40,7 +40,7 @@ export const useGameStore = defineStore("game",() => {
 
         const { player } = usePlayerStore();
         const { setupMap } = useMapStore();
-        const { addCargo, createCargo,cleanAllCargos } = useCargoStore();
+        const { addCargo, createCargo, modifyCargo, cleanAllCargos } = useCargoStore();
         const { addTarget,createTarget,cleanAllTargets } = useTargetStore();
 
         player.x = levelGameData.player.x;
@@ -51,6 +51,14 @@ export const useGameStore = defineStore("game",() => {
         cleanAllCargos();
         levelGameData.cargos.forEach((cargo) => {
             addCargo(createCargo(cargo));
+        })
+
+        levelGameData.cargos.forEach(cargo => {
+            levelGameData.targets.forEach((target) => {
+                if (cargo.x === target.x && cargo.y === target.y) {
+                   modifyCargo(cargo);
+                }
+            })
         })
 
         cleanAllTargets();
