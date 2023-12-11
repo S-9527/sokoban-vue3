@@ -1,8 +1,8 @@
 import { defineStore } from "pinia";
 import { reactive } from "vue";
-import {Position} from "../composables/usePosition.ts";
+import { Position } from "@/composables/usePosition.ts";
 
-interface Target {
+export interface Target {
     x: number;
     y: number;
 }

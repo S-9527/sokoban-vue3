@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { Position } from '../composables/usePosition.ts'
-import {reactive} from "vue";
+import { Position } from '@/composables/usePosition.ts'
+import { reactive } from "vue";
 
 export enum MapTile {
     EMPTY = 0,
