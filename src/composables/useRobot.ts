@@ -1,6 +1,6 @@
 import { usePlayerStore } from "@/store/game/player.ts";
 import { defineStore } from "pinia";
-import { Puzzle, Step } from "@/robot/robot.ts";
+import { MapBlock, Puzzle, SokobanStep, Step } from "@/robot/robot.ts";
 import { Map, MapTile, useMapStore } from "@/store/game/map.ts";
 import { Cargo, useCargoStore } from "@/store/game/cargo.ts";
 import { Target, useTargetStore } from "@/store/game/target.ts";
@@ -12,8 +12,6 @@ enum Direction {
     Down = "0,1"
 }
 
-const CARGO: number = 3;
-
 export const useRobot = defineStore('Robot',()=>{
     const { movePlayerToLeft, movePlayerToRight, movePlayerToUp, movePlayerToDown }  = usePlayerStore();
 
@@ -24,75 +22,77 @@ export const useRobot = defineStore('Robot',()=>{
         [Direction.Down]: movePlayerToDown
     };
 
-    function extractDirectionsFromSteps(step: Step | null){
-
+    function DirectionChain(step: Step | null){
         const result: Function[] = [];
+        const getDirections = (current: Step | null, last: Step | null): void => {
+            if (!current) return;
 
-        const getDirections = (currentStep: Step | null, lastStep: Step | null) => {
-            if (!currentStep) return;
+            const [lastX, lastY] = last?.current || [0, 0];
+            const [currentX, currentY] = current.current;
+            const coordinate = `${lastX - currentX},${lastY - currentY}`;
 
-            const [lastX, lastY] = lastStep?.current || [0, 0];
-            const [currentX, currentY] = currentStep.current;
-            const computed = `${lastX - currentX},${lastY - currentY}`;
-
-            if (computed in direction) {
-                result.push(direction[computed]);
+            if (coordinate in direction) {
+                result.push(direction[coordinate]);
             }
 
-            getDirections(currentStep.last, currentStep);
+            return getDirections(current.last, current);
         }
 
         getDirections(step,null)
+
         return result.reverse();
     }
 
     function conversion(map: Map, cargos: Cargo[], targets:Target[]) {
-        const width = map.length;
-        const space = [];
-        const occupied: Record<number, boolean> = {};
+        const width: number = map[0].length;
+        const mapper: (number | MapTile)[] = [];
+        const isActive: Record<number, boolean> = {};
 
-        for (let row of map) {
-            for (let tile of row) {
-                space.push(tile === MapTile.WALL ? MapTile.WALL : MapTile.FLOOR);
+        for (const row of map) {
+            for (const tile of row) {
+                mapper.push(tile === MapTile.WALL ? MapTile.WALL : MapTile.FLOOR);
             }
         }
 
-        for (let cargo of cargos) {
-            space[cargo.x + cargo.y * width] = CARGO;
+        for (const cargo of cargos) {
+            mapper[cargo.x + cargo.y * width] = MapBlock.BOX
         }
 
-        for (let target of targets) {
+        for (const target of targets) {
             const index = target.x + target.y * width;
-            occupied[index] = space[index] === CARGO;
+            isActive[index] = mapper[index] === MapBlock.BOX;
         }
 
-        return { space, occupied };
+        return { mapper, isActive };
     }
 
     function sleep(time: number){
         return new Promise(resolve => setTimeout(resolve, time));
     }
 
-
     const solve = async () => {
-        const { cargos } = useCargoStore();
-        const { targets } = useTargetStore();
-        const { map } = useMapStore();
-        const { player } = usePlayerStore();
+        const { cargos} = useCargoStore();
+        const { targets} = useTargetStore();
+        const { map} = useMapStore();
+        const { player} = usePlayerStore();
 
-        const { space, occupied} = conversion(map, cargos, targets);
+        const { mapper, isActive} = conversion(map, cargos, targets);
 
-        const puzzle = new Puzzle(space, map.length, occupied, [player.x, player.y]);
+        const puzzle: Puzzle = new Puzzle(mapper, map.length, isActive, [player.x, player.y]);
 
-        const result = puzzle.solve();
+        console.time("solve");
+
+        const result: SokobanStep | undefined = puzzle.solve();
+
+        console.timeEnd("solve");
 
         if (!result) return;
 
-        for(const operation of extractDirectionsFromSteps(result.steps)) {
+        for(const operation of DirectionChain(result.steps)) {
             operation();
             await sleep(500);
         }
     }
 
-    return { direction, solve }
+    return { solve }
 })

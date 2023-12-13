@@ -1,21 +1,21 @@
-enum Case {
+export enum MapBlock {
     WALL = 1,
     FLOOR = 2,
     BOX = 3,
     VISITED = 4,
 }
 
-type Map = Array<Case>;
+type Map = Array<MapBlock>;
 
-export type Position = [number, number];
+type Position = [number, number];
 
 type Targets = {
     [key: string]: boolean
 }
 
-type SokobanStep = {
-    steps: Step | null;
+export type SokobanStep = {
     model: Puzzle
+    steps: Step | null;
 };
 
 export type Step = {
@@ -48,7 +48,7 @@ export class Puzzle {
         const collection: Set<Step> = new Set([{ current: this.player, last: lastSteps }]);
 
         const isRemovable = (boxPos: number, newBoxPos: number) => {
-            return map[boxPos] === Case.BOX && (map[newBoxPos] === Case.FLOOR || map[newBoxPos] === Case.VISITED);
+            return map[boxPos] === MapBlock.BOX && (map[newBoxPos] === MapBlock.FLOOR || map[newBoxPos] === MapBlock.VISITED);
         }
 
         for (const step of collection) {
@@ -57,17 +57,17 @@ export class Puzzle {
 
             const position = y * this.width + x;
 
-            if (map[position] === Case.FLOOR) {
-                map[position] = Case.VISITED;
+            if (map[position] === MapBlock.FLOOR) {
+                map[position] = MapBlock.VISITED;
 
                 const check = (dx: number, dy: number) => {
                     const boxPos = (y + dy) * this.width + x + dx;
                     const newBoxPos = (y + dy * 2) * this.width + x + dx * 2;
                     if (isRemovable(boxPos, newBoxPos)) {
                         const newMap = [...this.map];
-                        newMap[position] = Case.FLOOR;
-                        newMap[boxPos] = Case.FLOOR;
-                        newMap[newBoxPos] = Case.BOX;
+                        newMap[position] = MapBlock.FLOOR;
+                        newMap[boxPos] = MapBlock.FLOOR;
+                        newMap[newBoxPos] = MapBlock.BOX;
 
                         const newTargets = {...this.targets};
 
@@ -108,7 +108,8 @@ export class Puzzle {
 
         while (collection.length) {
             const { model, steps} = collection.shift()!;
-            const nextSteps = model.findNextSteps(steps);
+
+            const nextSteps: SokobanStep[] = model.findNextSteps(steps);
 
             if (model.unsolved === 0) {
                 return { model, steps };
