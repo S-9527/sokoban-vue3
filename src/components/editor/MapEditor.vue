@@ -1,7 +1,7 @@
 <template>
   <div class="map-container">
-    <div v-for="(row, i) in map" class="flex">
-      <div v-for="(col, j) in map[i]">
+    <div v-for="(_,i) in map" class="flex">
+      <div v-for="(_, j) in map[i]">
         <MapBlock :x="j" :y="i"></MapBlock>
       </div>
     </div>
