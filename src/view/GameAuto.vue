@@ -1,14 +1,18 @@
 <template>
-  <Map></Map>
-  <template v-for="target in targets">
-    <Target :x="target.x" :y="target.y"></Target>
-  </template>
-  <Player></Player>
-  <template v-for="cargo in cargos" :key="cargo.id">
-    <Cargo :cargo="cargo"></Cargo>
-  </template>
-  <div v-if="game.isGameCompleted">
-    <button class="bg-red-500" @click="handleToNextLevel">下一关</button>
+  <div class="flex flex-col justify-center items-center h-screen">
+    <div class="relative">
+      <Map></Map>
+      <template v-for="target in targets">
+        <Target :x="target.x" :y="target.y"></Target>
+      </template>
+      <Player></Player>
+      <template v-for="cargo in cargos" :key="cargo.id">
+        <Cargo :cargo="cargo"></Cargo>
+      </template>
+      <div v-if="game.isGameCompleted">
+        <button class="bg-red-500" @click="handleToNextLevel">下一关</button>
+      </div>
+    </div>
   </div>
 </template>
 

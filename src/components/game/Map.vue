@@ -1,5 +1,5 @@
 <template>
-  <div class="map">
+  <div class="relative">
     <div v-for="row in map" class="flex">
       <div v-for="dot in row">
         <component :is="getElementComponent(dot)"></component>
