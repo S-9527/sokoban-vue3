@@ -855,6 +855,11 @@ jiti@^1.19.1:
   resolved "https://registry.npmmirror.com/jiti/-/jiti-1.21.0.tgz#7c97f8fe045724e136a397f7340475244156105d"
   integrity sha512-gFqAIbuKyyso/3G2qhiO2OM6shY6EPP/R0+mkDbyspxKazh8BXDC5FiFsUjlczgdNz/vfra0da2y+aHrusLG/Q==
 
+js-confetti@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.npmmirror.com/js-confetti/-/js-confetti-0.12.0.tgz#5ed74dc6f430c0137115f350b2e3f1f119840157"
+  integrity sha512-1R0Akxn3Zn82pMqW65N1V2NwKkZJ75bvBN/VAb36Ya0YHwbaSiAJZVRr/19HBxH/O8x2x01UFAbYI18VqlDN6g==
+
 jsonc-parser@^3.2.0:
   version "3.2.0"
   resolved "https://registry.npmmirror.com/jsonc-parser/-/jsonc-parser-3.2.0.tgz#31ff3f4c2b9793f89c67212627c51c6394f88e76"
