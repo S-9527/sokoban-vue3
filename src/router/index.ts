@@ -1,10 +1,10 @@
-import {createRouter, createWebHistory} from "vue-router";
+import {createRouter, createWebHashHistory} from "vue-router";
 import Game from "@/view/Game.vue";
 import Editor from "@/view/Editor.vue";
 import GameAuto from "@/view/GameAuto.vue";
 
 export const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes: [
         {
             path:'/',
