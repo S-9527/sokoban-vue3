@@ -10,8 +10,8 @@
         <Cargo :cargo="cargo"></Cargo>
       </template>
     </div>
-    <div v-if="game.isGameCompleted">
-      <button class="bg-red-500" @click="handleToNextLevel">下一关</button>
+    <div v-if="game.isGameCompleted" class="flex justify-center m-6">
+      <button @click="handleToNextLevel" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">下一关</button>
     </div>
   </div>
 </template>

@@ -9,8 +9,8 @@
       <template v-for="cargo in cargos" :key="cargo.id">
         <Cargo :cargo="cargo"></Cargo>
       </template>
-      <div v-if="game.isGameCompleted">
-        <button class="bg-red-500" @click="handleToNextLevel">下一关</button>
+      <div v-if="game.isGameCompleted" class="flex justify-center m-6">
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="handleToNextLevel">下一关</button>
       </div>
     </div>
   </div>
@@ -30,8 +30,8 @@ import { useRobot } from "@/composables/useRobot.ts";
 const { game,setupGame,toNextLevel } = useGameStore();
 const { cargos } = useCargoStore();
 const { targets } = useTargetStore();
-const { solve } = useRobot();
 
+const { solve } = useRobot();
 setupGame(gameData)
 
 setTimeout(solve,1000);
