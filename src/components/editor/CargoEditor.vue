@@ -1,11 +1,12 @@
 <template>
   <div class="absolute" :style="position" @dblclick="handleDblClick">
-    <img :src="_Cargo" alt="cargo" draggable="false">
+    <img :src="cargo.onTarget ? CargoOnTarget : _Cargo" alt="cargo" draggable="false">
   </div>
 </template>
 
 <script lang="ts" setup>
 import _Cargo from "../../assets/cargo.png";
+import CargoOnTarget from '../../assets/cargo_on_target.png'
 import {type EditCargo, useEditCargoStore} from "@/store/editor/editCargo.ts";
 import { usePosition } from "@/composables/usePosition.ts";
 

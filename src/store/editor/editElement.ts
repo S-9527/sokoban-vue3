@@ -61,8 +61,15 @@ export const cargoEditElement: EditElement = {
     img: cargo,
     canDrag: false,
     execute: (position) => {
-        const { addCargo, createCargo } = useEditCargoStore();
+        const { addCargo, createCargo, modifyCargo } = useEditCargoStore();
+        const { targets} = useEditTargetStore();
         addCargo(createCargo({ x: position.x, y: position.y }));
+
+        targets.forEach(target => {
+            if (target.x === position.x && target.y === position.y) {
+                modifyCargo(target);
+            }
+        })
 
         unset(position,MapTile.FLOOR)
     }
