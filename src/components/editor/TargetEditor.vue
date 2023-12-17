@@ -23,8 +23,10 @@ const { removeTarget } = useEditTargetStore();
 
 const { getCurrentSelectedEditElement } = useEditElementStore();
 const handleClick = () => {
-  visible.value = false
-  getCurrentSelectedEditElement()?.execute({ x: props.target.x, y:props.target.y });
+  if (getCurrentSelectedEditElement()?.name === '箱子' || getCurrentSelectedEditElement()?.name === '玩家') {
+    visible.value = false
+    getCurrentSelectedEditElement()?.execute({ x: props.target.x, y:props.target.y });
+  }
 }
 
 const handleDbClick = () => {
