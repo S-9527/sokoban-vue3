@@ -13,15 +13,22 @@ type Targets = {
     [key: string]: boolean
 }
 
-export type SokobanStep = {
-    model: Puzzle
-    steps: Step | null;
-};
-
-export type Step = {
-    current: Position,
-    last: Step | null
+export interface Command {
+    from: Position,
+    next: Command | null
 }
+
+export interface Action {
+    instance: Puzzle
+    command: Command | null;
+}
+
+const directions: Record<string, Position> = {
+    Left: [-1, 0],
+    Right: [1, 0],
+    Up: [0, -1],
+    Down: [0, 1]
+};
 
 export class Puzzle {
     map: Map
@@ -29,32 +36,30 @@ export class Puzzle {
     player: Position
     targets: Targets
     unsolved: number
-    lastStep: Puzzle | null;
+    instance: Puzzle | null;
 
-    constructor(map: Map, width: number, targets: Targets, player: Position, lastStep?: Puzzle) {
+    constructor(map: Map, width: number, targets: Targets, player: Position, instance?: Puzzle) {
         this.map = map;
         this.targets = targets;
         this.width = width;
         this.player = player;
         this.unsolved = Object.values(targets).filter(value => !value).length;
-        this.lastStep = lastStep || null;
+        this.instance = instance || null;
     }
 
-    findNextSteps(lastSteps: Step | null = null) {
-        const result: SokobanStep[] = [];
+    findNextSteps(command: Command | null = null) {
+        const result: Action[] = [];
 
         const map: Map = [...this.map];
 
-        const collection: Set<Step> = new Set([{ current: this.player, last: lastSteps }]);
+        const collection: Set<Command> = new Set([createCommand(this.player, command!)]);
 
         const isRemovable = (boxPos: number, newBoxPos: number) => {
             return map[boxPos] === MapBlock.BOX && (map[newBoxPos] === MapBlock.FLOOR || map[newBoxPos] === MapBlock.VISITED);
         }
 
-        for (const step of collection) {
-            const {current} = step;
-            const [x, y] = current;
-
+        for (const command of collection) {
+            const [x,y] = command.from;
             const position = y * this.width + x;
 
             if (map[position] === MapBlock.FLOOR) {
@@ -81,45 +86,41 @@ export class Puzzle {
                         const newY = (boxPos - newX) / this.width;
 
                         result.push({
-                            steps: { current: [x + dx, y + dy], last: step },
-                            model: new Puzzle(newMap, this.width, newTargets, [newX, newY], this)
+                            command: { from: [x + dx, y + dy], next: command },
+                            instance: new Puzzle(newMap, this.width, newTargets, [newX, newY], this)
                         });
                     }
                 }
 
-                check(1, 0);
-                check(-1, 0);
-                check(0, 1);
-                check(0, -1);
-
-                collection.add({current: [x - 1, y], last: step});
-                collection.add({current: [x + 1, y], last: step});
-                collection.add({current: [x, y - 1], last: step});
-                collection.add({current: [x, y + 1], last: step});
+                for (const [dx,dy] of Object.values(directions)){
+                    check(dx,dy);
+                    collection.add({from: [x + dx, y + dy], next: command});
+                }
             }
         }
 
         return result;
     }
 
-    solve(lastSteps: Step | null = null) {
-        let collection: SokobanStep[] = [{ steps: lastSteps, model: this }];
+
+    solve(command: Command | null = null) {
+        const chain = build(this, command);
         let visited: Set<string> = new Set();
 
-        while (collection.length) {
-            const { model, steps} = collection.shift()!;
+        while (chain.length) {
+            const { instance, command} = chain.shift()!;
 
-            const nextSteps: SokobanStep[] = model.findNextSteps(steps);
+            const next: Action[] = instance.findNextSteps(command);
 
-            if (model.unsolved === 0) {
-                return { model, steps };
+            if (instance.unsolved === 0) {
+                return { instance, command };
             }
 
-            for (const step of nextSteps) {
-                const hashCode = step.model.toString()
+            for (const command of next) {
+                const hashCode = command.instance.toString()
                 if (!visited.has(hashCode)) {
                     visited.add(hashCode);
-                    collection.push(step);
+                    chain.push(command);
                 }
             }
         }
@@ -135,4 +136,16 @@ export class Puzzle {
         string += `player: ${this.player}\n`;
         return string;
     }
+}
+
+function build(instance: Puzzle, command: Command | null): Action[] {
+    let collection: Action[] = [];
+    const action: Action = { instance, command }
+    collection.push(action);
+
+    return collection;
+}
+
+function createCommand(from: Position, next: Command) {
+    return { from, next };
 }
