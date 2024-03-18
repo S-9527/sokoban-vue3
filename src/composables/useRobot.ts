@@ -1,6 +1,6 @@
 import { usePlayerStore } from "@/store/game/player.ts";
 import { defineStore } from "pinia";
-import { MapBlock, Puzzle, SokobanStep, Step } from "@/robot/robot.ts";
+import { Action, Command, MapBlock, Puzzle } from "@/robot/robot.ts";
 import { Map, MapTile, useMapStore } from "@/store/game/map.ts";
 import { Cargo, useCargoStore } from "@/store/game/cargo.ts";
 import { Target, useTargetStore } from "@/store/game/target.ts";
@@ -22,23 +22,23 @@ export const useRobot = defineStore('Robot',()=>{
         [Direction.Down]: movePlayerToDown
     };
 
-    function DirectionChain(step: Step | null){
+    function DirectionChain(command: Command | null){
         const result: Function[] = [];
-        const getDirections = (current: Step | null, last: Step | null): void => {
-            if (!current) return;
+        const getDirections = (from: Command | null, next: Command | null): void => {
+            if (!from) return;
 
-            const [lastX, lastY] = last?.current || [0, 0];
-            const [currentX, currentY] = current.current;
-            const coordinate = `${lastX - currentX},${lastY - currentY}`;
+            const [nextX, nextY] = next?.from || [0, 0];
+            const [fromX, fromY] = from.from;
+            const coordinate = `${nextX - fromX},${nextY - fromY}`;
 
             if (coordinate in direction) {
                 result.push(direction[coordinate]);
             }
 
-            return getDirections(current.last, current);
+            return getDirections(from.next, from);
         }
 
-        getDirections(step,null)
+        getDirections(command,null)
 
         return result.reverse();
     }
@@ -82,13 +82,13 @@ export const useRobot = defineStore('Robot',()=>{
 
         console.time("solve");
 
-        const result: SokobanStep | undefined = puzzle.solve();
+        const result: Action | undefined = puzzle.solve();
 
         console.timeEnd("solve");
 
         if (!result) return;
 
-        for(const operation of DirectionChain(result.steps)) {
+        for(const operation of DirectionChain(result.command)) {
             operation();
             await sleep(500);
         }
