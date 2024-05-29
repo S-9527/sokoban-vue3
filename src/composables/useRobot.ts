@@ -43,7 +43,7 @@ export const useRobot = defineStore('Robot',()=>{
         return result.reverse();
     }
 
-    function conversion(map: Map, cargos: Cargo[], targets:Target[]) {
+    function transform(map: Map, cargos: Cargo[], targets:Target[]) {
         const width: number = map[0].length;
         const mapper: (number | MapTile)[] = [];
         const isActive: Record<number, boolean> = {};
@@ -76,7 +76,7 @@ export const useRobot = defineStore('Robot',()=>{
         const { map} = useMapStore();
         const { player} = usePlayerStore();
 
-        const { mapper, isActive} = conversion(map, cargos, targets);
+        const { mapper, isActive} = transform(map, cargos, targets);
 
         const puzzle: Puzzle = new Puzzle(mapper, map[0].length, isActive, [player.x, player.y]);
 
