@@ -54,10 +54,6 @@ export class Puzzle {
 
         const collection: Set<Command> = new Set([createCommand(this.player, command!)]);
 
-        const isRemovable = (boxPos: number, newBoxPos: number) => {
-            return map[boxPos] === MapBlock.BOX && (map[newBoxPos] === MapBlock.FLOOR || map[newBoxPos] === MapBlock.VISITED);
-        }
-
         for (const command of collection) {
             const [x,y] = command.from;
             const position = y * this.width + x;
@@ -68,7 +64,7 @@ export class Puzzle {
                 const check = (dx: number, dy: number) => {
                     const boxPos = (y + dy) * this.width + x + dx;
                     const newBoxPos = (y + dy * 2) * this.width + x + dx * 2;
-                    if (isRemovable(boxPos, newBoxPos)) {
+                    if (canRemovable(map, boxPos, newBoxPos)) {
                         const newMap = [...this.map];
                         newMap[position] = MapBlock.FLOOR;
                         newMap[boxPos] = MapBlock.FLOOR;
@@ -104,12 +100,11 @@ export class Puzzle {
 
 
     solve(command: Command | null = null) {
-        const chain = build(this, command);
-        let visited: Set<string> = new Set();
+        const actions = createActions(this, command);
+        const visited: Set<string> = new Set();
 
-        while (chain.length) {
-            const { instance, command} = chain.shift()!;
-
+        while (actions.length) {
+            const { instance, command} = actions.shift()!;
             const next: Action[] = instance.findNextSteps(command);
 
             if (instance.unsolved === 0) {
@@ -120,7 +115,7 @@ export class Puzzle {
                 const hashCode = command.instance.toString()
                 if (!visited.has(hashCode)) {
                     visited.add(hashCode);
-                    chain.push(command);
+                    actions.push(command);
                 }
             }
         }
@@ -138,8 +133,12 @@ export class Puzzle {
     }
 }
 
-function build(instance: Puzzle, command: Command | null): Action[] {
-    let collection: Action[] = [];
+const canRemovable = (map: Map, boxPos: number, newBoxPos: number) => {
+    return map[boxPos] === MapBlock.BOX && (map[newBoxPos] === MapBlock.FLOOR || map[newBoxPos] === MapBlock.VISITED);
+}
+
+function createActions(instance: Puzzle, command: Command | null): Action[] {
+    const collection: Action[] = [];
     const action: Action = { instance, command }
     collection.push(action);
 
