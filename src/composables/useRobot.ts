@@ -24,7 +24,7 @@ export const useRobot = defineStore('Robot',()=>{
 
     function DirectionChain(command: Command | null){
         const result: Function[] = [];
-        const getDirections = (from: Command | null, next: Command | null): void => {
+        const traverse = (from: Command | null, next: Command | null): void => {
             if (!from) return;
 
             const [nextX, nextY] = next?.from || [0, 0];
@@ -35,10 +35,10 @@ export const useRobot = defineStore('Robot',()=>{
                 result.push(direction[coordinate]);
             }
 
-            return getDirections(from.next, from);
+            return traverse(from.next, from);
         }
 
-        getDirections(command,null)
+        traverse(command,null)
 
         return result.reverse();
     }
