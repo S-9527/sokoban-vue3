@@ -31,14 +31,14 @@ const directions: Record<string, Position> = {
 };
 
 export class Puzzle {
-    map: Map
-    width: number
-    player: Position
-    targets: Targets
-    unsolved: number
-    instance: Puzzle | null;
+    private readonly map: Map
+    private readonly width: number
+    private readonly player: Position
+    private readonly targets: Targets
+    private unsolved: number
+    readonly instance: Puzzle | null
 
-    constructor(map: Map, width: number, targets: Targets, player: Position, instance?: Puzzle) {
+    private constructor(map: Map, width: number, targets: Targets, player: Position, instance?: Puzzle) {
         this.map = map;
         this.targets = targets;
         this.width = width;
@@ -47,51 +47,25 @@ export class Puzzle {
         this.instance = instance || null;
     }
 
+    static of(map: Map, width: number, targets: Targets, player: Position, instance?: Puzzle) {
+        return new Puzzle(map, width, targets, player, instance);
+    }
+
     findNextSteps(command: Command | null = null) {
         const result: Action[] = [];
-
         const map: Map = [...this.map];
-
         const collection: Set<Command> = new Set([createCommand(this.player, command!)]);
 
         for (const command of collection) {
             const [x,y] = command.from;
             const position = y * this.width + x;
 
-            if (map[position] === MapBlock.FLOOR) {
-                map[position] = MapBlock.VISITED;
+            if (map[position] !== MapBlock.FLOOR) continue;
+            map[position] = MapBlock.VISITED;
 
-                const check = (dx: number, dy: number) => {
-                    const boxPos = (y + dy) * this.width + x + dx;
-                    const newBoxPos = (y + dy * 2) * this.width + x + dx * 2;
-                    if (canRemovable(map, boxPos, newBoxPos)) {
-                        const newMap = [...this.map];
-                        newMap[position] = MapBlock.FLOOR;
-                        newMap[boxPos] = MapBlock.FLOOR;
-                        newMap[newBoxPos] = MapBlock.BOX;
-
-                        const newTargets = {...this.targets};
-
-                        if (this.targets[boxPos])
-                            newTargets[boxPos] = false;
-
-                        if (newBoxPos.toString() in this.targets)
-                            newTargets[newBoxPos] = true;
-
-                        const newX = boxPos % this.width;
-                        const newY = (boxPos - newX) / this.width;
-
-                        result.push({
-                            command: { from: [x + dx, y + dy], next: command },
-                            instance: new Puzzle(newMap, this.width, newTargets, [newX, newY], this)
-                        });
-                    }
-                }
-
-                for (const [dx,dy] of Object.values(directions)){
-                    check(dx,dy);
-                    collection.add({from: [x + dx, y + dy], next: command});
-                }
+            for (const [dx, dy] of Object.values(directions)){
+                this.prune(map, command.from, [dx, dy], command, result);
+                collection.add(createCommand([x + dx, y + dy], command));
             }
         }
 
@@ -121,6 +95,32 @@ export class Puzzle {
         }
     }
 
+    private prune(map: Map, position: Position, directions: Position, command: Command, result: Action[]) {
+        const [x,y] = position;
+        const [dx,dy] = directions;
+        const boxPos = (y + dy) * this.width + x + dx;
+        const newBoxPos = boxPos + dy * this.width + dx;
+
+        if (canRemovable(map, boxPos, newBoxPos)) {
+            map = [...this.map];
+            map[boxPos] = MapBlock.FLOOR;
+            map[newBoxPos] = MapBlock.BOX;
+
+            const copyTargets = { ...this.targets };
+
+            if (this.targets[boxPos])
+                copyTargets[boxPos] = false;
+
+            if (newBoxPos.toString() in this.targets)
+                copyTargets[newBoxPos] = true;
+
+            result.push({
+                command: createCommand([x + dx, y + dy], command),
+                instance: Puzzle.of(map, this.width, copyTargets, createPlayer(boxPos, this.width), this)
+            });
+        }
+    }
+
     toString() {
         let string = this.map.reduce((acc, cell, index) => {
             acc += cell;
@@ -138,13 +138,15 @@ const canRemovable = (map: Map, boxPos: number, newBoxPos: number) => {
 }
 
 function createActions(instance: Puzzle, command: Command | null): Action[] {
-    const collection: Action[] = [];
-    const action: Action = { instance, command }
-    collection.push(action);
-
-    return collection;
+    return [{ instance, command }];
 }
 
 function createCommand(from: Position, next: Command) {
     return { from, next };
+}
+
+function createPlayer(boxPos: number, width: number): Position {
+    const x = boxPos % width;
+    const y = (boxPos - x) / width;
+    return [x, y];
 }
