@@ -22,7 +22,7 @@ export const useRobot = defineStore('Robot',()=>{
         [Direction.Down]: movePlayerToDown
     };
 
-    function DirectionChain(command: Command | null){
+    function commandToActions(command: Command | null){
         const result: Function[] = [];
         const traverse = (from: Command | null, next: Command | null): void => {
             if (!from) return;
@@ -78,7 +78,7 @@ export const useRobot = defineStore('Robot',()=>{
 
         const { mapper, isActive} = transform(map, cargos, targets);
 
-        const puzzle: Puzzle = new Puzzle(mapper, map[0].length, isActive, [player.x, player.y]);
+        const puzzle: Puzzle = Puzzle.of(mapper, map[0].length, isActive, [player.x, player.y]);
 
         console.time("solve");
 
@@ -88,8 +88,8 @@ export const useRobot = defineStore('Robot',()=>{
 
         if (!result) return;
 
-        for(const operation of DirectionChain(result.command)) {
-            operation();
+        for(const action of commandToActions(result.command)) {
+            action();
             await sleep(500);
         }
     }
