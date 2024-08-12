@@ -7,8 +7,6 @@ export function generateId() {
     return id++;
 }
 
-export function removeIdAttribute(element:EditCargo[] | EditTarget[]) {
-    return element.map((item: EditCargo | EditTarget) => {
-        return { x: item.x, y: item.y }
-    })
+export function getCoordinates<T extends EditCargo | EditTarget>(element: T[]) {
+    return element.map(item => ({ x: item.x, y: item.y }));
 }
