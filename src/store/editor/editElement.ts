@@ -1,6 +1,6 @@
 import {Position} from "@/composables/usePosition.ts";
-import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {MapTile} from "@/store/game/map.ts";
+import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {defineStore} from "pinia";
 
 import wall from '../../assets/wall.png'
@@ -8,8 +8,8 @@ import floor from '../../assets/floor.png'
 import keeper from '../../assets/keeper.png'
 import cargo from '../../assets/cargo.png'
 import target from '../../assets/target.png'
-import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 import {ref, toRefs} from "vue";
+import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 import {useEditCargoStore} from "@/store/editor/editCargo.ts";
 import {useEditTargetStore} from "@/store/editor/editTarget.ts";
 

@@ -19,8 +19,7 @@ const { map } = useMapEditorStore();
 
 const gameData = computed(() => {
   return {
-    map,
-    player,
+    map, player,
     cargos: getCoordinates(cargos),
     targets: getCoordinates(targets)
   };
