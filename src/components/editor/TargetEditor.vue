@@ -7,8 +7,8 @@
 <script setup lang="ts">
 import target from '../../assets/target.png'
 import {usePosition} from "@/composables/usePosition.ts";
-import {EditTarget, useEditTargetStore} from "@/store/editor/editTarget.ts";
-import {useEditElementStore} from "@/store/editor/editElement.ts";
+import {type EditTarget, useEditTargetStore} from "@/store/editor/editTarget.ts";
+import {cargoEditElement, playerEditElement, useEditElementStore} from "@/store/editor/editElement.ts";
 import {ref} from "vue";
 
 interface Props {
@@ -23,7 +23,7 @@ const { removeTarget } = useEditTargetStore();
 
 const { getCurrentSelectedEditElement } = useEditElementStore();
 const handleClick = () => {
-  if (getCurrentSelectedEditElement()?.name === '箱子' || getCurrentSelectedEditElement()?.name === '玩家') {
+  if (getCurrentSelectedEditElement()?.name === cargoEditElement.name || getCurrentSelectedEditElement()?.name === playerEditElement.name) {
     visible.value = false
     getCurrentSelectedEditElement()?.execute({ x: props.target.x, y:props.target.y });
   }

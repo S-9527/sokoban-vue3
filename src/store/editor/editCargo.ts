@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { reactive } from "vue";
 import { generateId } from "@/utils/id.ts";
-import {Cargo} from "@/store/game/cargo.ts";
+import { Cargo } from "@/store/game/cargo.ts";
 
 export interface EditCargo {
     x: number;

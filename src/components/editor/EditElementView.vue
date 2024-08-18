@@ -5,11 +5,11 @@
   </div>
 
   <div class="flex space-x-2 m-2">
-    <EditElement :edit-element="playerEditElement"></EditElement>
-    <EditElement :edit-element="wallEditElement"></EditElement>
-    <EditElement :edit-element="floorEditElement"></EditElement>
-    <EditElement :edit-element="cargoEditElement"></EditElement>
-    <EditElement :edit-element="targetEditElement"></EditElement>
+    <EditElement :edit-element="playerEditElement"/>
+    <EditElement :edit-element="wallEditElement"/>
+    <EditElement :edit-element="floorEditElement"/>
+    <EditElement :edit-element="cargoEditElement"/>
+    <EditElement :edit-element="targetEditElement"/>
   </div>
 
   <div>当前选择的: {{ selectedEditElementName }}</div>
