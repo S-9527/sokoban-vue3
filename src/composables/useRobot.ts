@@ -78,7 +78,7 @@ export const useRobot = defineStore('Robot',()=>{
 
         const { mapper, isActive} = transform(map, cargos, targets);
 
-        const puzzle: Puzzle = Puzzle.of(mapper, map[0].length, isActive, [player.x, player.y]);
+        const puzzle: Puzzle = Puzzle.of(mapper, isActive, [player.x, player.y]);
 
         console.time("solve");
 
