@@ -1,3 +1,5 @@
+import { useMapStore } from "@/store/game/map.ts";
+
 export enum MapBlock {
     WALL = 1,
     FLOOR = 2,
@@ -36,25 +38,25 @@ export class Puzzle {
     private readonly player: Position
     private readonly targets: Targets
     private unsolved: number
-    readonly instance: Puzzle | null
 
-    private constructor(map: Map, width: number, targets: Targets, player: Position, instance?: Puzzle) {
+    private constructor(map: Map, width: number, targets: Targets, player: Position) {
         this.map = map;
         this.targets = targets;
         this.width = width;
         this.player = player;
         this.unsolved = Object.values(targets).filter(value => !value).length;
-        this.instance = instance || null;
     }
 
-    static of(map: Map, width: number, targets: Targets, player: Position, instance?: Puzzle) {
-        return new Puzzle(map, width, targets, player, instance);
+    static of(map: Map, targets: Targets, player: Position) {
+        const mapStore = useMapStore();
+        const width = mapStore.map[0].length;
+        return new Puzzle(map, width, targets, player);
     }
 
-    findNextSteps(command: Command | null = null) {
+    findNextSteps(command: Command) {
         const result: Action[] = [];
         const map: Map = [...this.map];
-        const collection: Set<Command> = new Set([createCommand(this.player, command!)]);
+        const collection: Set<Command> = new Set([createCommand(this.player, command)]);
 
         for (const command of collection) {
             const [x,y] = command.from;
@@ -73,13 +75,13 @@ export class Puzzle {
     }
 
 
-    solve(command: Command | null = null) {
-        const actions = createActions(this, command);
+    solve() {
+        const actions = createActions(this, null);
         const visited: Set<string> = new Set();
 
         while (actions.length) {
             const { instance, command} = actions.shift()!;
-            const next: Action[] = instance.findNextSteps(command);
+            const next: Action[] = instance.findNextSteps(command!);
 
             if (instance.unsolved === 0) {
                 return { instance, command };
@@ -116,7 +118,7 @@ export class Puzzle {
 
             result.push({
                 command: createCommand([x + dx, y + dy], command),
-                instance: Puzzle.of(map, this.width, copyTargets, createPlayer(boxPos, this.width), this)
+                instance: Puzzle.of(map, copyTargets, createPlayer(boxPos, this.width))
             });
         }
     }
