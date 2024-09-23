@@ -1,7 +1,7 @@
 import { usePlayerStore } from "@/store/game/player.ts";
 import { defineStore } from "pinia";
-import { Action, Command, MapBlock, Puzzle } from "@/robot/robot.ts";
-import { Map, MapTile, useMapStore } from "@/store/game/map.ts";
+import { Action, Command, MapTile, Puzzle } from "@/robot/robot.ts";
+import { Map, useMapStore } from "@/store/game/map.ts";
 import { Cargo, useCargoStore } from "@/store/game/cargo.ts";
 import { Target, useTargetStore } from "@/store/game/target.ts";
 
@@ -50,17 +50,17 @@ export const useRobot = defineStore('Robot',()=>{
 
         for (const row of map) {
             for (const tile of row) {
-                mapper.push(tile === MapTile.WALL ? MapTile.WALL : MapTile.FLOOR);
+                mapper.push(tile.valueOf() === MapTile.WALL ? MapTile.WALL : MapTile.FLOOR);
             }
         }
 
         for (const cargo of cargos) {
-            mapper[cargo.x + cargo.y * width] = MapBlock.BOX
+            mapper[cargo.x + cargo.y * width] = MapTile.BOX
         }
 
         for (const target of targets) {
             const index = target.x + target.y * width;
-            isActive[index] = mapper[index] === MapBlock.BOX;
+            isActive[index] = mapper[index] === MapTile.BOX;
         }
 
         return { mapper, isActive };
