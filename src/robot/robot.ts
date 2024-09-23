@@ -21,7 +21,7 @@ export interface Command {
 }
 
 export interface Action {
-    instance: Puzzle
+    puzzle: Puzzle
     command: Command | null;
 }
 
@@ -80,15 +80,15 @@ export class Puzzle {
         const visited: Set<string> = new Set();
 
         while (actions.length) {
-            const { instance, command} = actions.shift()!;
-            const next: Action[] = instance.generateNextActions(command!);
+            const { puzzle, command} = actions.shift()!;
+            const next: Action[] = puzzle.generateNextActions(command!);
 
-            if (instance.unsolved === 0) {
-                return { instance, command };
+            if (puzzle.unsolved === 0) {
+                return { puzzle, command };
             }
 
             for (const action of next) {
-                const hashCode = action.instance.toString()
+                const hashCode = action.puzzle.toString()
                 if (!visited.has(hashCode)) {
                     visited.add(hashCode);
                     actions.push(action);
@@ -118,7 +118,7 @@ export class Puzzle {
 
             result.push({
                 command: createCommand([x + dx, y + dy], command),
-                instance: Puzzle.of(map, copyTargets, createPlayer(boxPos, this.width))
+                puzzle: Puzzle.of(map, copyTargets, createPlayer(boxPos, this.width))
             });
         }
     }
@@ -139,8 +139,8 @@ const canRemovable = (map: Map, boxPos: number, newBoxPos: number) => {
     return map[boxPos] === MapTile.BOX && (map[newBoxPos] === MapTile.FLOOR || map[newBoxPos] === MapTile.VISITED);
 }
 
-function createActions(instance: Puzzle, command: Command | null): Action[] {
-    return [{ instance, command }];
+function createActions(puzzle: Puzzle, command: Command | null): Action[] {
+    return [{ puzzle, command }];
 }
 
 function createCommand(from: Position, next: Command) {
