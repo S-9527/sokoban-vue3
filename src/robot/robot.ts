@@ -1,13 +1,13 @@
 import { useMapStore } from "@/store/game/map.ts";
 
-export enum MapBlock {
+export enum MapTile {
     WALL = 1,
     FLOOR = 2,
     BOX = 3,
     VISITED = 4,
 }
 
-type Map = Array<MapBlock>;
+type Map = Array<MapTile>;
 
 type Position = [number, number];
 
@@ -53,7 +53,7 @@ export class Puzzle {
         return new Puzzle(map, width, targets, player);
     }
 
-    findNextSteps(command: Command) {
+    generateNextActions(command: Command) {
         const result: Action[] = [];
         const map: Map = [...this.map];
         const collection: Set<Command> = new Set([createCommand(this.player, command)]);
@@ -62,11 +62,11 @@ export class Puzzle {
             const [x,y] = command.from;
             const position = y * this.width + x;
 
-            if (map[position] !== MapBlock.FLOOR) continue;
-            map[position] = MapBlock.VISITED;
+            if (map[position] !== MapTile.FLOOR) continue;
+            map[position] = MapTile.VISITED;
 
             for (const [dx, dy] of Object.values(directions)){
-                this.prune(map, command.from, [dx, dy], command, result);
+                this.prune(map, [dx, dy], command, result);
                 collection.add(createCommand([x + dx, y + dy], command));
             }
         }
@@ -81,32 +81,32 @@ export class Puzzle {
 
         while (actions.length) {
             const { instance, command} = actions.shift()!;
-            const next: Action[] = instance.findNextSteps(command!);
+            const next: Action[] = instance.generateNextActions(command!);
 
             if (instance.unsolved === 0) {
                 return { instance, command };
             }
 
-            for (const command of next) {
-                const hashCode = command.instance.toString()
+            for (const action of next) {
+                const hashCode = action.instance.toString()
                 if (!visited.has(hashCode)) {
                     visited.add(hashCode);
-                    actions.push(command);
+                    actions.push(action);
                 }
             }
         }
     }
 
-    private prune(map: Map, position: Position, directions: Position, command: Command, result: Action[]) {
-        const [x,y] = position;
+    private prune(map: Map, directions: Position, command: Command, result: Action[]) {
+        const [x,y] = command.from;
         const [dx,dy] = directions;
         const boxPos = (y + dy) * this.width + x + dx;
         const newBoxPos = boxPos + dy * this.width + dx;
 
         if (canRemovable(map, boxPos, newBoxPos)) {
             map = [...this.map];
-            map[boxPos] = MapBlock.FLOOR;
-            map[newBoxPos] = MapBlock.BOX;
+            map[boxPos] = MapTile.FLOOR;
+            map[newBoxPos] = MapTile.BOX;
 
             const copyTargets = { ...this.targets };
 
@@ -136,7 +136,7 @@ export class Puzzle {
 }
 
 const canRemovable = (map: Map, boxPos: number, newBoxPos: number) => {
-    return map[boxPos] === MapBlock.BOX && (map[newBoxPos] === MapBlock.FLOOR || map[newBoxPos] === MapBlock.VISITED);
+    return map[boxPos] === MapTile.BOX && (map[newBoxPos] === MapTile.FLOOR || map[newBoxPos] === MapTile.VISITED);
 }
 
 function createActions(instance: Puzzle, command: Command | null): Action[] {
