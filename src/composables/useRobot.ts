@@ -1,6 +1,6 @@
 import { usePlayerStore } from "@/store/game/player.ts";
 import { defineStore } from "pinia";
-import { Action, Command, MapTile, Puzzle } from "@/robot/robot.ts";
+import { Action, GameState, MapTile, Puzzle } from "@/robot/robot.ts";
 import { Map, useMapStore } from "@/store/game/map.ts";
 import { Cargo, useCargoStore } from "@/store/game/cargo.ts";
 import { Target, useTargetStore } from "@/store/game/target.ts";
@@ -22,14 +22,11 @@ export const useRobot = defineStore('Robot',()=>{
         [Direction.Down]: movePlayerToDown
     };
 
-    function commandToActions(command: Command | null){
+    function parseAction(action: Action){
         const result: Function[] = [];
-        const traverse = (from: Command | null, next: Command | null): void => {
+        const traverse = (from: Action | null, next?: Action | null): void => {
             if (!from) return;
-
-            const [nextX, nextY] = next?.from || [0, 0];
-            const [fromX, fromY] = from.from;
-            const coordinate = `${nextX - fromX},${nextY - fromY}`;
+            const coordinate = generateCoordinate(from, next!);
 
             if (coordinate in direction) {
                 result.push(direction[coordinate]);
@@ -38,9 +35,14 @@ export const useRobot = defineStore('Robot',()=>{
             return traverse(from.next, from);
         }
 
-        traverse(command,null)
-
+        traverse(action);
         return result.reverse();
+    }
+
+    function generateCoordinate(from: Action, next: Action | null) {
+        const [nextX, nextY] = next?.from || [0, 0];
+        const [fromX, fromY] = from.from;
+        return `${nextX - fromX},${nextY - fromY}`;
     }
 
     function transform(map: Map, cargos: Cargo[], targets:Target[]) {
@@ -70,25 +72,28 @@ export const useRobot = defineStore('Robot',()=>{
         return new Promise(resolve => setTimeout(resolve, time));
     }
 
-    const solve = async () => {
-        const { cargos} = useCargoStore();
-        const { targets} = useTargetStore();
-        const { map} = useMapStore();
-        const { player} = usePlayerStore();
+    function setupPuzzle() {
+        const { player } = usePlayerStore();
+        const { targets } = useTargetStore();
+        const { map } = useMapStore();
+        const { cargos } = useCargoStore();
 
         const { mapper, isActive} = transform(map, cargos, targets);
+        return Puzzle.of(mapper, isActive, [player.x, player.y]);
+    }
 
-        const puzzle: Puzzle = Puzzle.of(mapper, isActive, [player.x, player.y]);
+    const solve = async () => {
+        const puzzle: Puzzle = setupPuzzle();
 
         console.time("solve");
 
-        const result: Action | undefined = puzzle.solve();
+        const result: GameState | undefined = puzzle.solve();
 
         console.timeEnd("solve");
 
         if (!result) return;
 
-        for(const action of commandToActions(result.command)) {
+        for(const action of parseAction(result.action)) {
             action();
             await sleep(500);
         }

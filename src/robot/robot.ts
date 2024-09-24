@@ -9,23 +9,23 @@ export enum MapTile {
 
 type Map = Array<MapTile>;
 
-type Position = [number, number];
+export type Point = [number, number];
 
 type Targets = {
     [key: string]: boolean
 }
 
-export interface Command {
-    from: Position,
-    next: Command | null
-}
-
 export interface Action {
-    puzzle: Puzzle
-    command: Command | null;
+    from: Point,
+    next: Action | null
 }
 
-const directions: Record<string, Position> = {
+export interface GameState {
+    puzzle: Puzzle
+    action: Action;
+}
+
+const directions: Record<string, Point> = {
     Left: [-1, 0],
     Right: [1, 0],
     Up: [0, -1],
@@ -35,11 +35,11 @@ const directions: Record<string, Position> = {
 export class Puzzle {
     private readonly map: Map
     private readonly width: number
-    private readonly player: Position
+    private readonly player: Point
     private readonly targets: Targets
     private unsolved: number
 
-    private constructor(map: Map, width: number, targets: Targets, player: Position) {
+    private constructor(map: Map, width: number, targets: Targets, player: Point) {
         this.map = map;
         this.targets = targets;
         this.width = width;
@@ -47,27 +47,27 @@ export class Puzzle {
         this.unsolved = Object.values(targets).filter(value => !value).length;
     }
 
-    static of(map: Map, targets: Targets, player: Position) {
+    static of(map: Map, targets: Targets, player: Point) {
         const mapStore = useMapStore();
         const width = mapStore.map[0].length;
         return new Puzzle(map, width, targets, player);
     }
 
-    generateNextActions(command: Command) {
-        const result: Action[] = [];
+    generateNextActions(action: Action) {
+        const result: GameState[] = [];
         const map: Map = [...this.map];
-        const collection: Set<Command> = new Set([createCommand(this.player, command)]);
+        const collection: Set<Action> = new Set([createAction(this.player, action)]);
 
-        for (const command of collection) {
-            const [x,y] = command.from;
+        for (const action of collection) {
+            const [x,y] = action.from;
             const position = y * this.width + x;
 
             if (map[position] !== MapTile.FLOOR) continue;
             map[position] = MapTile.VISITED;
 
             for (const [dx, dy] of Object.values(directions)){
-                this.prune(map, [dx, dy], command, result);
-                collection.add(createCommand([x + dx, y + dy], command));
+                this.prune(map, [dx, dy], action, result);
+                collection.add(createAction([x + dx, y + dy], action));
             }
         }
 
@@ -76,15 +76,18 @@ export class Puzzle {
 
 
     solve() {
-        const actions = createActions(this, null);
+        const actions = initializeGameState(this, {
+            from: this.player,
+            next: null
+        });
         const visited: Set<string> = new Set();
 
         while (actions.length) {
-            const { puzzle, command} = actions.shift()!;
-            const next: Action[] = puzzle.generateNextActions(command!);
+            const { puzzle, action} = actions.shift()!;
+            const next: GameState[] = puzzle.generateNextActions(action);
 
             if (puzzle.unsolved === 0) {
-                return { puzzle, command };
+                return { puzzle, action };
             }
 
             for (const action of next) {
@@ -97,8 +100,8 @@ export class Puzzle {
         }
     }
 
-    private prune(map: Map, directions: Position, command: Command, result: Action[]) {
-        const [x,y] = command.from;
+    private prune(map: Map, directions: Point, action: Action, result: GameState[]) {
+        const [x,y] = action.from;
         const [dx,dy] = directions;
         const boxPos = (y + dy) * this.width + x + dx;
         const newBoxPos = boxPos + dy * this.width + dx;
@@ -117,7 +120,7 @@ export class Puzzle {
                 copyTargets[newBoxPos] = true;
 
             result.push({
-                command: createCommand([x + dx, y + dy], command),
+                action: createAction([x + dx, y + dy], action),
                 puzzle: Puzzle.of(map, copyTargets, createPlayer(boxPos, this.width))
             });
         }
@@ -139,15 +142,15 @@ const canRemovable = (map: Map, boxPos: number, newBoxPos: number) => {
     return map[boxPos] === MapTile.BOX && (map[newBoxPos] === MapTile.FLOOR || map[newBoxPos] === MapTile.VISITED);
 }
 
-function createActions(puzzle: Puzzle, command: Command | null): Action[] {
-    return [{ puzzle, command }];
+function initializeGameState(puzzle: Puzzle, action: Action): GameState[] {
+    return [{ puzzle, action }];
 }
 
-function createCommand(from: Position, next: Command) {
+function createAction(from: Point, next: Action) {
     return { from, next };
 }
 
-function createPlayer(boxPos: number, width: number): Position {
+function createPlayer(boxPos: number, width: number): Point {
     const x = boxPos % width;
     const y = (boxPos - x) / width;
     return [x, y];
