@@ -1,4 +1,6 @@
-import { useMapStore } from "@/store/game/map.ts";
+import { PuzzleSolver } from "@/robot/puzzleSolver.ts";
+import { processPuzzle, processAction, unableToMove, setup } from "@/robot/utility/process.ts";
+import { Calculator, createCollection } from "@/robot/utility/calculator.ts";
 
 export enum MapTile {
     WALL = 1,
@@ -7,17 +9,18 @@ export enum MapTile {
     VISITED = 4,
 }
 
-type Map = Array<MapTile>;
+export type Map = Array<MapTile>;
 
 export type Point = [number, number];
 
-type Targets = {
+export type Targets = {
     [key: string]: boolean
 }
 
 export interface Action {
     from: Point,
-    next: Action | null
+    next: Action | [],
+    dir?: [number, number]
 }
 
 export interface GameState {
@@ -25,133 +28,126 @@ export interface GameState {
     action: Action;
 }
 
-const directions: Record<string, Point> = {
-    Left: [-1, 0],
-    Right: [1, 0],
-    Up: [0, -1],
-    Down: [0, 1]
-};
-
 export class Puzzle {
-    private readonly map: Map
-    private readonly width: number
+    private readonly _map: Map
+    private readonly _width: number
+    private readonly _targets: Targets
     private readonly player: Point
-    private readonly targets: Targets
     private unsolved: number
+    private _action: Action = { from: [0, 0], next: [], dir: [1, 0] };
 
-    private constructor(map: Map, width: number, targets: Targets, player: Point) {
-        this.map = map;
-        this.targets = targets;
-        this.width = width;
+    constructor(map: Map, width: number, targets: Targets, player: Point) {
+        this._map = map;
+        this._targets = targets;
+        this._width = width;
         this.player = player;
         this.unsolved = Object.values(targets).filter(value => !value).length;
     }
 
-    static of(map: Map, targets: Targets, player: Point) {
-        const mapStore = useMapStore();
-        const width = mapStore.map[0].length;
-        return new Puzzle(map, width, targets, player);
+    get width(): number {
+        return this._width;
     }
 
-    generateNextActions(action: Action) {
+    get map(): Map {
+        return this._map;
+    }
+
+    get targets(): Targets {
+        return this._targets;
+    }
+
+    get dir(): Point {
+        return this.action.dir || [1, 0];
+    }
+
+    get action(): Action {
+        return this._action;
+    }
+
+    get calculator() {
+        return new Calculator(this.width, this.dir);
+    }
+
+    generateNextActions(action?: Action) {
         const result: GameState[] = [];
-        const map: Map = [...this.map];
-        const collection: Set<Action> = new Set([createAction(this.player, action)]);
+        const map: Map = [...this._map];
+        const collection: Set<Action> = createCollection(this.player, action!);
+
+        const directions: Record<string, Point> = {
+            Left: [-1, 0],
+            Right: [1, 0],
+            Up: [0, -1],
+            Down: [0, 1]
+        };
 
         for (const action of collection) {
-            const [x,y] = action.from;
-            const position = y * this.width + x;
+            const position = this.calculatePlayerLocation(action)
 
             if (map[position] !== MapTile.FLOOR) continue;
             map[position] = MapTile.VISITED;
 
-            for (const [dx, dy] of Object.values(directions)){
-                this.prune(map, [dx, dy], action, result);
-                collection.add(createAction([x + dx, y + dy], action));
-            }
+            Object.values(directions).forEach(item => {
+                this.calculateBoxPosition(item);
+                this.recordGameState(map, result);
+                collection.add(processAction(this));
+            })
         }
 
         return result;
     }
 
-
     solve() {
-        const actions = initializeGameState(this, {
-            from: this.player,
-            next: null
-        });
+        const actions = PuzzleSolver.setup(this);
         const visited: Set<string> = new Set();
 
         while (actions.length) {
             const { puzzle, action} = actions.shift()!;
-            const next: GameState[] = puzzle.generateNextActions(action);
 
             if (puzzle.unsolved === 0) {
                 return { puzzle, action };
             }
 
-            for (const action of next) {
+            puzzle.generateNextActions(action).forEach(action => {
                 const hashCode = action.puzzle.toString()
                 if (!visited.has(hashCode)) {
                     visited.add(hashCode);
                     actions.push(action);
                 }
-            }
-        }
-    }
-
-    private prune(map: Map, directions: Point, action: Action, result: GameState[]) {
-        const [x,y] = action.from;
-        const [dx,dy] = directions;
-        const boxPos = (y + dy) * this.width + x + dx;
-        const newBoxPos = boxPos + dy * this.width + dx;
-
-        if (canRemovable(map, boxPos, newBoxPos)) {
-            map = [...this.map];
-            map[boxPos] = MapTile.FLOOR;
-            map[newBoxPos] = MapTile.BOX;
-
-            const copyTargets = { ...this.targets };
-
-            if (this.targets[boxPos])
-                copyTargets[boxPos] = false;
-
-            if (newBoxPos.toString() in this.targets)
-                copyTargets[newBoxPos] = true;
-
-            result.push({
-                action: createAction([x + dx, y + dy], action),
-                puzzle: Puzzle.of(map, copyTargets, createPlayer(boxPos, this.width))
             });
         }
+
+        throw new Error("No solution");
+    }
+
+    private calculateBoxPosition(dir: Point) {
+        this._action.dir = dir;
+        const calculator = this.calculator;
+        setup(calculator.calculateBoxPosition(this.action.from));
+    }
+
+    private calculatePlayerLocation(action: Action) {
+        this._action = action;
+        const [x,y] = this.action.from;
+        return y * this._width + x;
+    }
+
+    private recordGameState(map: Map, result: GameState[]) {
+        if (unableToMove(map)) return;
+
+        result.push({
+            action: processAction(this),
+            puzzle: processPuzzle(this)
+        });
     }
 
     toString() {
-        let string = this.map.reduce((acc, cell, index) => {
+        let string = this._map.reduce((acc, cell, index) => {
             acc += cell;
-            if (index % this.width === this.width - 1) { acc += "\n"; }
+            if (index % this._width === this._width - 1) { acc += "\n"; }
             return acc;
         }, "");
 
         string += `player: ${this.player}\n`;
         return string;
     }
-}
-
-const canRemovable = (map: Map, boxPos: number, newBoxPos: number) => {
-    return map[boxPos] === MapTile.BOX && (map[newBoxPos] === MapTile.FLOOR || map[newBoxPos] === MapTile.VISITED);
-}
-
-function initializeGameState(puzzle: Puzzle, action: Action): GameState[] {
-    return [{ puzzle, action }];
-}
-
-function createAction(from: Point, next: Action) {
-    return { from, next };
-}
-
-function createPlayer(boxPos: number, width: number): Point {
-    const x = boxPos % width;
-    const y = (boxPos - x) / width;
-    return [x, y];
 }

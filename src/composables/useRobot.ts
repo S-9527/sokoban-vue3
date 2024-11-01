@@ -1,9 +1,7 @@
 import { usePlayerStore } from "@/store/game/player.ts";
 import { defineStore } from "pinia";
-import { Action, GameState, MapTile, Puzzle } from "@/robot/robot.ts";
-import { Map, useMapStore } from "@/store/game/map.ts";
-import { Cargo, useCargoStore } from "@/store/game/cargo.ts";
-import { Target, useTargetStore } from "@/store/game/target.ts";
+import { Action, GameState } from "@/robot/robot.ts";
+import { PuzzleSolver } from "@/robot/puzzleSolver.ts";
 
 enum Direction {
     Left = "-1,0",
@@ -23,80 +21,50 @@ export const useRobot = defineStore('Robot',()=>{
     };
 
     function parseAction(action: Action){
-        const result: Function[] = [];
-        const traverse = (from: Action | null, next?: Action | null): void => {
-            if (!from) return;
-            const coordinate = generateCoordinate(from, next!);
+        const solution: Function[] = [];
+        const traverse = (action: Action, next: Action | []): void => {
+            if (!action.next) return;
+            const coordinate = generateCoordinate(action, next);
 
             if (coordinate in direction) {
-                result.push(direction[coordinate]);
+                solution.push(direction[coordinate]);
             }
 
-            return traverse(from.next, from);
+            return traverse(<Action>action.next, action);
         }
 
-        traverse(action);
-        return result.reverse();
+        traverse(action, []);
+        return solution.reverse();
     }
 
-    function generateCoordinate(from: Action, next: Action | null) {
-        const [nextX, nextY] = next?.from || [0, 0];
-        const [fromX, fromY] = from.from;
+    function generateCoordinate(action: Action, next: Action | []) {
+        if (Array.isArray(action) || Array.isArray(next)) return "";
+        const [nextX, nextY] = next.from || [0, 0];
+        const [fromX, fromY] = action.from;
         return `${nextX - fromX},${nextY - fromY}`;
     }
 
-    function transform(map: Map, cargos: Cargo[], targets:Target[]) {
-        const width: number = map[0].length;
-        const mapper: (number | MapTile)[] = [];
-        const isActive: Record<number, boolean> = {};
-
-        for (const row of map) {
-            for (const tile of row) {
-                mapper.push(tile.valueOf() === MapTile.WALL ? MapTile.WALL : MapTile.FLOOR);
-            }
+    async function execute(action: Action) {
+        for (const move of parseAction(action)) {
+            move();
+            await sleep(500);
         }
-
-        for (const cargo of cargos) {
-            mapper[cargo.x + cargo.y * width] = MapTile.BOX
-        }
-
-        for (const target of targets) {
-            const index = target.x + target.y * width;
-            isActive[index] = mapper[index] === MapTile.BOX;
-        }
-
-        return { mapper, isActive };
     }
 
     function sleep(time: number){
         return new Promise(resolve => setTimeout(resolve, time));
     }
 
-    function setupPuzzle() {
-        const { player } = usePlayerStore();
-        const { targets } = useTargetStore();
-        const { map } = useMapStore();
-        const { cargos } = useCargoStore();
-
-        const { mapper, isActive} = transform(map, cargos, targets);
-        return Puzzle.of(mapper, isActive, [player.x, player.y]);
+    function solveWithTime() {
+        console.time("solve");
+        const result: GameState = PuzzleSolver.execute();
+        console.timeEnd("solve");
+        return result;
     }
 
     const solve = async () => {
-        const puzzle: Puzzle = setupPuzzle();
-
-        console.time("solve");
-
-        const result: GameState | undefined = puzzle.solve();
-
-        console.timeEnd("solve");
-
-        if (!result) return;
-
-        for(const action of parseAction(result.action)) {
-            action();
-            await sleep(500);
-        }
+        const result = solveWithTime();
+        await execute(result.action);
     }
 
     return { solve }
