@@ -30,10 +30,10 @@ export class Calculator {
     }
 }
 
-export function createAction(from: Point, next: Action, dir?: Point) {
-    return { dir, from, next: next || [] };
+export function createAction(from: Point, next: Action) {
+    return { from, next: next || [] };
 }
 
 export function createCollection(player: Point, action: Action) {
-    return new Set([createAction(player, action, [1,0])]);
+    return new Set([createAction(player, action)]);
 }

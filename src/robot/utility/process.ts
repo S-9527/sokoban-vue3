@@ -35,7 +35,7 @@ export function calculatePlayerLocation(puzzle: Puzzle): Point {
     return [x, y];
 }
 
-export function processPuzzle(puzzle: Puzzle) {
+export function generatePuzzle(puzzle: Puzzle) {
     return new Puzzle(
         processMap(puzzle),
         puzzle.width,
@@ -44,7 +44,7 @@ export function processPuzzle(puzzle: Puzzle) {
     );
 }
 
-export function processAction(puzzle: Puzzle) {
+export function generateAction(puzzle: Puzzle) {
     return puzzle.calculator.calculateAction(puzzle.action);
 }
 
