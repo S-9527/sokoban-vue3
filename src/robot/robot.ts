@@ -1,5 +1,5 @@
 import { PuzzleSolver } from "@/robot/puzzleSolver.ts";
-import { processPuzzle, processAction, unableToMove, setup } from "@/robot/utility/process.ts";
+import { generateAction, generatePuzzle, unableToMove, setup } from "@/robot/utility/process.ts";
 import { Calculator, createCollection } from "@/robot/utility/calculator.ts";
 
 export enum MapTile {
@@ -89,7 +89,7 @@ export class Puzzle {
             Object.values(directions).forEach(item => {
                 this.calculateBoxPosition(item);
                 this.recordGameState(map, result);
-                collection.add(processAction(this));
+                collection.add(generateAction(this));
             })
         }
 
@@ -135,8 +135,8 @@ export class Puzzle {
         if (unableToMove(map)) return;
 
         result.push({
-            action: processAction(this),
-            puzzle: processPuzzle(this)
+            action: generateAction(this),
+            puzzle: generatePuzzle(this)
         });
     }
 
