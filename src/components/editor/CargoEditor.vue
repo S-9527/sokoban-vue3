@@ -1,6 +1,6 @@
 <template>
   <div class="absolute" :style="position" @dblclick="handleDblClick">
-    <img :src="cargo.onTarget ? CargoOnTarget : _Cargo" alt="cargo" draggable="false">
+    <img :src="cargo.onTarget ? CargoOnTarget : _Cargo" alt="cargo" draggable="false" class="size-8">
   </div>
 </template>
 

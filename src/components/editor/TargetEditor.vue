@@ -1,6 +1,6 @@
 <template>
   <div class="absolute" :style="position" @click="handleClick" @dblclick="handleDbClick">
-    <img :src="target" alt="target" draggable="false" v-if="visible">
+    <img :src="target" alt="target" draggable="false" v-if="visible" class="size-8">
   </div>
 </template>
 

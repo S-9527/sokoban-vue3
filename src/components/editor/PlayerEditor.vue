@@ -1,6 +1,6 @@
 <template>
   <div class="absolute" :style="position" v-show="visible" @dblclick="handleDblClick">
-    <img :src="keeper" alt="keeper" class="block">
+    <img :src="keeper" alt="keeper" class="block size-8">
   </div>
 </template>
 

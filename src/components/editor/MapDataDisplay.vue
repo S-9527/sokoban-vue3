@@ -1,6 +1,13 @@
 <template>
-  <div class="flex-auto m-2">
-    <textarea rows="10" cols="10" readonly>{{ gameData }}</textarea>
+  <div class="space-y-2">
+    <label for="gameData" class="block text-sm font-medium text-gray-700">Game Data</label>
+    <textarea
+        id="gameData"
+        :value="JSON.stringify(gameData, null, 2)"
+        rows="10"
+        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        readonly
+    ></textarea>
   </div>
 </template>
 
