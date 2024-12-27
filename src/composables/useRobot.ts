@@ -1,71 +1,67 @@
 import { usePlayerStore } from "@/store/game/player.ts";
+import { useCargoStore } from "@/store/game/cargo.ts";
+import { useTargetStore } from "@/store/game/target.ts";
+import { useMapStore } from "@/store/game/map.ts";
 import { defineStore } from "pinia";
-import { Action, GameState } from "@/robot/robot.ts";
+import { Puzzle } from "@/robot/robot.ts";
 import { PuzzleSolver } from "@/robot/puzzleSolver.ts";
+import { Point, MapTile } from "@/types/game.ts";
+import { useGameStore } from "@/store/game/game.ts";
 
-enum Direction {
-    Left = "-1,0",
-    Right = "1,0",
-    Up = "0,-1",
-    Down = "0,1"
-}
+export const useRobot = defineStore('Robot', () => {
+    const playerStore = usePlayerStore();
+    const cargoStore = useCargoStore();
+    const targetStore = useTargetStore();
+    const mapStore = useMapStore();
+    const gameStore = useGameStore();
 
-export const useRobot = defineStore('Robot',()=>{
-    const { movePlayerToLeft, movePlayerToRight, movePlayerToUp, movePlayerToDown }  = usePlayerStore();
+    async function solve() {
+        try {
+            console.log(`开始求解第 ${gameStore.game.level} 关...`);
+            const startTime = performance.now();
 
-    const direction: Record<string, () => void> = {
-        [Direction.Left]: movePlayerToLeft,
-        [Direction.Right]: movePlayerToRight,
-        [Direction.Up]: movePlayerToUp,
-        [Direction.Down]: movePlayerToDown
-    };
+            // 转换游戏状态为 Puzzle
+            const map = mapStore.map.map(row =>
+                row.map(cell => cell === 1 ? MapTile.WALL : MapTile.FLOOR)
+            );
 
-    function parseAction(action: Action){
-        const solution: Function[] = [];
-        const traverse = (action: Action, next: Action | []): void => {
-            if (!action.next) return;
-            const coordinate = generateCoordinate(action, next);
+            const puzzle = new Puzzle(
+                map,
+                cargoStore.cargos.map(cargo => [cargo.x, cargo.y] as Point),
+                targetStore.targets.map(target => [target.x, target.y] as Point),
+                [playerStore.player.x, playerStore.player.y] as Point
+            );
 
-            if (coordinate in direction) {
-                solution.push(direction[coordinate]);
+            // 获取解决方案
+            const solution = PuzzleSolver.solve(puzzle);
+
+            const endTime = performance.now();
+            const timeUsed = Math.round(endTime - startTime);
+            console.log(`第 ${gameStore.game.level} 关解题完成，用时: ${timeUsed}ms`);
+
+            // 执行移动
+            for (const [x, y] of solution) {
+                await movePlayer(x, y);
+                await sleep(300);
             }
-
-            return traverse(<Action>action.next, action);
-        }
-
-        traverse(action, []);
-        return solution.reverse();
-    }
-
-    function generateCoordinate(action: Action, next: Action | []) {
-        if (Array.isArray(action) || Array.isArray(next)) return "";
-        const [nextX, nextY] = next.from || [0, 0];
-        const [fromX, fromY] = action.from;
-        return `${nextX - fromX},${nextY - fromY}`;
-    }
-
-    async function execute(action: Action) {
-        for (const move of parseAction(action)) {
-            move();
-            await sleep(500);
+        } catch (error) {
+            console.error('Failed to solve puzzle:', error);
         }
     }
 
-    function sleep(time: number){
-        return new Promise(resolve => setTimeout(resolve, time));
+    function movePlayer(x: number, y: number) {
+        const dx = x - playerStore.player.x;
+        const dy = y - playerStore.player.y;
+
+        if (dx > 0) return playerStore.movePlayerToRight();
+        if (dx < 0) return playerStore.movePlayerToLeft();
+        if (dy > 0) return playerStore.movePlayerToDown();
+        if (dy < 0) return playerStore.movePlayerToUp();
     }
 
-    function solveWithTime() {
-        console.time("solve");
-        const result: GameState = PuzzleSolver.execute();
-        console.timeEnd("solve");
-        return result;
+    function sleep(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    const solve = async () => {
-        const result = solveWithTime();
-        await execute(result.action);
-    }
-
-    return { solve }
-})
+    return { solve };
+});
