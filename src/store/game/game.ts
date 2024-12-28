@@ -18,12 +18,14 @@ export const useGameStore = defineStore("game",() => {
     });
 
     let _gameData: GameData;
-    const confetti = new JSConfetti()
 
     function detectionGameCompleted() {
         const { cargos } = useCargoStore();
         game.isGameCompleted = cargos.every((cargo) => cargo.onTarget);
-        if (game.isGameCompleted) { confetti.addConfetti() }
+        if (game.isGameCompleted && globalThis.constructor.name === 'Window') {
+            const confetti = new JSConfetti()
+            confetti.addConfetti()
+        }
     }
 
     function setupGame(gameData: GameData) {
