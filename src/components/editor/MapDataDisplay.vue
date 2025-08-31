@@ -151,7 +151,8 @@ const importFromJson = () => {
       targets.push({
         id: Date.now() + Math.random(),
         x: target.x,
-        y: target.y
+        y: target.y,
+        visible: true
       });
     });
   }

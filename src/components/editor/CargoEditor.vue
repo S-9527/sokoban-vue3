@@ -23,7 +23,7 @@ const { enableTarget } = useEditTargetStore();
 
 const handleDblClick = () => {
   removeCargo(props.cargo);
-  enableTarget();
+  enableTarget(props.cargo.x, props.cargo.y);
 };
 </script>
 
