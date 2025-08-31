@@ -247,6 +247,74 @@ export async function loadMapFromImage(imageData: string): Promise<LevelGameData
 }
 
 /**
+ * 计算两个图像数据的相似度
+ * @param data1 图像数据1
+ * @param data2 图像数据2
+ * @returns 相似度（0-1之间）
+ */
+function calculateImageSimilarity(data1: Uint8ClampedArray, data2: Uint8ClampedArray): number {
+  let diff = 0;
+  let total = 0;
+  let matchingPixels = 0;
+  let totalPixels = 0;
+  
+  for (let i = 0; i < data1.length; i += 4) {
+    // 检查两个图像在该像素点是否都有内容（alpha > 0）
+    const hasContent1 = data1[i + 3] > 0;
+    const hasContent2 = data2[i + 3] > 0;
+    
+    totalPixels++;
+    
+    if (hasContent1 && hasContent2) {
+      // 两个图像在该点都有内容，计算颜色差异
+      diff += Math.abs(data1[i] - data2[i]) + 
+              Math.abs(data1[i + 1] - data2[i + 1]) + 
+              Math.abs(data1[i + 2] - data2[i + 2]);
+      total += 3 * 255;
+      matchingPixels++;
+    } else if (!hasContent1 && !hasContent2) {
+      // 两个图像在该点都无内容，视为匹配
+      matchingPixels++;
+    }
+    // 如果一个有内容一个无内容，则不增加匹配计数，也不计入差异计算
+  }
+  
+  // 如果没有重叠的像素，返回0相似度
+  if (total === 0) return 0;
+  
+  // 计算颜色相似度
+  const colorSimilarity = 1 - (diff / total);
+  
+  // 计算像素重叠率
+  const overlapRate = matchingPixels / totalPixels;
+  
+  // 综合相似度 = 颜色相似度 * 像素重叠率
+  return colorSimilarity * overlapRate;
+}
+
+/**
+ * 查找最匹配的瓦片类型
+ * @param cellData 当前单元格的图像数据
+ * @param referenceData 参考图像数据数组
+ * @returns 最匹配的类型信息
+ */
+function findBestMatchingTileType(
+  cellData: Uint8ClampedArray, 
+  referenceData: { type: string; data: Uint8ClampedArray }[]
+): { type: string; similarity: number } {
+  let bestMatch = { type: 'unknown', similarity: 0 };
+  
+  for (const ref of referenceData) {
+    const similarity = calculateImageSimilarity(cellData, ref.data);
+    if (similarity > bestMatch.similarity) {
+      bestMatch = { type: ref.type, similarity };
+    }
+  }
+  
+  return bestMatch;
+}
+
+/**
  * 从图片文件解析地图数据
  * @param img 加载的图片元素
  * @returns 解析后的地图数据
@@ -310,6 +378,9 @@ async function parseImageFromFile(img: HTMLImageElement): Promise<LevelGameData>
     cargoOnTargetElement && { type: 'cargoOnTarget', data: getImageData(refCtx, cargoOnTargetElement) }
   ].filter(Boolean) as { type: string; data: Uint8ClampedArray }[];
   
+  // 记录需要检查绿色边框的位置
+  const positionsToCheckForGreenBorder: { x: number; y: number }[] = [];
+  
   // 解析地图和元素
   for (let y = 0; y < mapHeight; y++) {
     const row: MapTile[] = [];
@@ -328,14 +399,41 @@ async function parseImageFromFile(img: HTMLImageElement): Promise<LevelGameData>
         row.push(MapTile.FLOOR);
         
         // 记录游戏对象
-        if (bestMatch.type === 'keeper') player.x = x, player.y = y;
-        if (bestMatch.type === 'cargo' || bestMatch.type === 'cargoOnTarget') cargos.push({ x, y });
-        if (bestMatch.type === 'target' || bestMatch.type === 'cargoOnTarget') targets.push({ x, y });
+        if (bestMatch.type === 'keeper') {
+          player.x = x;
+          player.y = y;
+          // 记录玩家位置，稍后检查是否有绿色边框
+          positionsToCheckForGreenBorder.push({ x, y });
+        }
+        if (bestMatch.type === 'cargo') {
+          cargos.push({ x, y });
+        }
+        if (bestMatch.type === 'target') {
+          targets.push({ x, y });
+        }
+        // cargoOnTarget同时包含箱子和目标点
+        if (bestMatch.type === 'cargoOnTarget') {
+          cargos.push({ x, y });
+          targets.push({ x, y });
+        }
       } else {
         row.push(MapTile.EMPTY);
       }
     }
     map.push(row);
+  }
+  
+  // 检查玩家位置是否有绿色边框（表示玩家在目标点上）
+  for (const pos of positionsToCheckForGreenBorder) {
+    // 检查边框颜色
+    const hasGreenBorder = checkForGreenBorder(ctx, pos.x, pos.y);
+    // 如果有绿色边框，且该位置还没有被标记为目标点，则添加
+    if (hasGreenBorder) {
+      const isAlreadyTarget = targets.some(target => target.x === pos.x && target.y === pos.y);
+      if (!isAlreadyTarget) {
+        targets.push({ x: pos.x, y: pos.y });
+      }
+    }
   }
   
   // 如果没有找到玩家，默认放在第一个地板位置
@@ -344,6 +442,45 @@ async function parseImageFromFile(img: HTMLImageElement): Promise<LevelGameData>
   }
   
   return { map, player, cargos, targets };
+}
+
+/**
+ * 检查指定位置是否有绿色边框（表示玩家在目标点上）
+ * @param ctx Canvas上下文
+ * @param x X坐标（格子单位）
+ * @param y Y坐标（格子单位）
+ * @returns 是否有绿色边框
+ */
+function checkForGreenBorder(ctx: CanvasRenderingContext2D, x: number, y: number): boolean {
+  // 边框位置（根据drawPlayer函数中的绘制逻辑）
+  const borderX = x * CELL_SIZE + 1;
+  const borderY = y * CELL_SIZE + 1;
+  
+  // 检查四条边是否有绿色像素
+  // 上边
+  const topBorderData = ctx.getImageData(borderX + CELL_SIZE/2, borderY, 1, 1).data;
+  // 右边
+  const rightBorderData = ctx.getImageData(borderX + CELL_SIZE - 2, borderY + CELL_SIZE/2, 1, 1).data;
+  // 下边
+  const bottomBorderData = ctx.getImageData(borderX + CELL_SIZE/2, borderY + CELL_SIZE - 2, 1, 1).data;
+  // 左边
+  const leftBorderData = ctx.getImageData(borderX, borderY + CELL_SIZE/2, 1, 1).data;
+  
+  // 判断是否为绿色 (#00FF00)
+  const isGreen = (data: Uint8ClampedArray) => {
+    // RGB接近绿色 (0, 255, 0)
+    return data[0] < 50 && data[1] > 200 && data[2] < 50;
+  };
+  
+  // 如果至少有两条边是绿色，则认为有绿色边框
+  const greenBorderCount = [
+    isGreen(topBorderData),
+    isGreen(rightBorderData),
+    isGreen(bottomBorderData),
+    isGreen(leftBorderData)
+  ].filter(Boolean).length;
+  
+  return greenBorderCount >= 2;
 }
 
 /**
@@ -365,47 +502,6 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
     img.onerror = () => resolve(null);
     img.src = src;
   });
-}
-
-/**
- * 计算两个图像数据的相似度
- */
-function calculateImageSimilarity(data1: Uint8ClampedArray, data2: Uint8ClampedArray): number {
-  let diff = 0;
-  let total = 0;
-  
-  for (let i = 0; i < data1.length; i += 4) {
-    if (data1[i + 3] > 0 && data2[i + 3] > 0) {
-      diff += Math.abs(data1[i] - data2[i]) + 
-              Math.abs(data1[i + 1] - data2[i + 1]) + 
-              Math.abs(data1[i + 2] - data2[i + 2]);
-      total += 3 * 255;
-    }
-  }
-  
-  return total === 0 ? 0 : 1 - (diff / total);
-}
-
-/**
- * 查找最匹配的瓦片类型
- * @param cellData 当前单元格的图像数据
- * @param referenceData 参考图像数据数组
- * @returns 最匹配的类型信息
- */
-function findBestMatchingTileType(
-  cellData: Uint8ClampedArray, 
-  referenceData: { type: string; data: Uint8ClampedArray }[]
-): { type: string; similarity: number } {
-  let bestMatch = { type: 'unknown', similarity: 0 };
-  
-  for (const ref of referenceData) {
-    const similarity = calculateImageSimilarity(cellData, ref.data);
-    if (similarity > bestMatch.similarity) {
-      bestMatch = { type: ref.type, similarity };
-    }
-  }
-  
-  return bestMatch;
 }
 
 /**
