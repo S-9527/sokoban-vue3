@@ -1,19 +1,19 @@
 import { defineStore } from "pinia";
-import {reactive, ref} from "vue";
+import { reactive } from "vue";
 import { generateId } from "@/utils/id.ts";
 
 export interface EditTarget {
     x: number;
     y: number;
     id: number;
+    visible: boolean
 }
 
 export const useEditTargetStore = defineStore('edit-target', () => {
     const targets= reactive<EditTarget[]>([]);
-    const visible = ref<boolean>(true);
 
     function createTarget({ x, y }: { x: number, y: number }): EditTarget {
-        return { id: generateId(), x, y }
+        return { id: generateId(), x, y, visible: true }
     }
 
     function addTarget(target: EditTarget) {
@@ -24,21 +24,31 @@ export const useEditTargetStore = defineStore('edit-target', () => {
         targets.splice(targets.indexOf(target), 1)
     }
 
-    function disableTarget() {
-        visible.value = false;
+    function disableTarget(x: number, y: number) {
+        targets
+            .filter(t => t.x === x && t.y === y)
+            .forEach(target => target.visible = false);
     }
 
-    function enableTarget() {
-        visible.value = true;
+    function enableTarget(x: number, y: number) {
+        targets
+            .filter(t => t.x === x && t.y === y)
+            .forEach(target => target.visible = true);
+    }
+
+    function enableAllTargets() {
+        targets.forEach(target => {
+            target.visible = true;
+        });
     }
 
     return {
-        visible,
         targets,
         createTarget,
         addTarget,
         removeTarget,
         disableTarget,
-        enableTarget
+        enableTarget,
+        enableAllTargets
     }
 })
