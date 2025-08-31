@@ -5,16 +5,18 @@ import {defineStore} from "pinia";
 
 import wall from '../../assets/wall.png'
 import floor from '../../assets/floor.png'
+import empty from '../../assets/empty.png'
 import keeper from '../../assets/keeper.png'
 import cargo from '../../assets/cargo.png'
 import target from '../../assets/target.png'
-import {ref, toRefs} from "vue";
+import {ref} from "vue";
 import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 import {useEditCargoStore} from "@/store/editor/editCargo.ts";
 import {useEditTargetStore} from "@/store/editor/editTarget.ts";
 
 export interface EditElement {
     name: string,
+    description: string,
     img: string,
     canDrag: boolean,
     execute: (position: Position) => void
@@ -22,6 +24,7 @@ export interface EditElement {
 
 export const wallEditElement: EditElement = {
     name: '墙',
+    description: '不可通过的障碍物，可拖拽放置',
     img: wall,
     canDrag: true,
     execute: (position) => {
@@ -32,6 +35,7 @@ export const wallEditElement: EditElement = {
 
 export const floorEditElement: EditElement = {
     name: '地板',
+    description: '可行走的区域，可拖拽放置',
     img: floor,
     canDrag: true,
     execute: (position) => {
@@ -40,24 +44,32 @@ export const floorEditElement: EditElement = {
     }
 }
 
+export const emptyEditElement: EditElement = {
+    name: '空白',
+    description: '地图边界外的区域，可拖拽放置',
+    img: empty,
+    canDrag: true,
+    execute: (position) => {
+        const { map } = useMapEditorStore();
+        map[position.y][position.x] = MapTile.EMPTY;
+    }
+}
+
 export const playerEditElement: EditElement = {
     name: '玩家',
+    description: '游戏主角，地图中只能有一个',
     img: keeper,
     canDrag: false,
     execute: (position) => {
         const { player } = useEditPlayerStore();
-        const { visible} = toRefs(useEditPlayerStore());
         player.x = position.x;
         player.y = position.y;
-
-        visible.value = true;
-
-        unset(position,MapTile.FLOOR)
     }
 }
 
 export const cargoEditElement: EditElement = {
     name: '箱子',
+    description: '可推动的物品，可放置多个',
     img: cargo,
     canDrag: false,
     execute: (position) => {
@@ -65,31 +77,24 @@ export const cargoEditElement: EditElement = {
         const { targets} = useEditTargetStore();
         addCargo(createCargo({ x: position.x, y: position.y }));
 
+        // 检查该位置是否有目标点，如果有则更新箱子状态
         targets.forEach(target => {
             if (target.x === position.x && target.y === position.y) {
                 modifyCargo(target);
             }
         })
-
-        unset(position,MapTile.FLOOR)
     }
 }
 
 export const targetEditElement: EditElement = {
     name: '放置点',
+    description: '箱子的目标位置，可放置多个',
     img: target,
     canDrag: false,
     execute: (position) => {
         const {addTarget, createTarget} = useEditTargetStore();
         addTarget(createTarget({ x: position.x, y: position.y }));
-
-        unset(position,MapTile.FLOOR)
     }
-}
-
-function unset(position: Position, element: MapTile) {
-    const { map } = useMapEditorStore();
-    map[position.y][position.x] = element;
 }
 
 

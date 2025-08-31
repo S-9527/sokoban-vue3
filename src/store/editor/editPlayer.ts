@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { reactive, ref } from "vue";
+import { reactive } from "vue";
 
 interface EditPlayer {
     x: number;
@@ -12,15 +12,5 @@ export const useEditPlayerStore = defineStore('edit-player', () => {
         y: 0,
     })
 
-    const visible = ref<boolean>(false);
-
-    function display() {
-        visible.value = true;
-    }
-
-    function hidden() {
-        visible.value = false;
-    }
-
-    return { player, visible, display, hidden }
+    return { player }
 })

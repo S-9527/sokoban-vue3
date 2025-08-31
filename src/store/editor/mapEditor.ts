@@ -63,6 +63,15 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
         col.value = _col;
     }
 
+    // 添加重置地图功能
+    function resetMap() {
+        map.splice(0, map.length);
+        for (let i = 0; i < row.value; i++) {
+            let cells = new Array(col.value).fill(MapTile.EMPTY);
+            map.push(cells);
+        }
+    }
+
     return {
         map,
         row,
@@ -72,5 +81,6 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
         updateMapCol,
         updateMapRow,
         initMap,
+        resetMap
     }
 })
