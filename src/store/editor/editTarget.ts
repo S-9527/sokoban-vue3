@@ -24,18 +24,6 @@ export const useEditTargetStore = defineStore('edit-target', () => {
         targets.splice(targets.indexOf(target), 1)
     }
 
-    function disableTarget(x: number, y: number) {
-        targets
-            .filter(t => t.x === x && t.y === y)
-            .forEach(target => target.visible = false);
-    }
-
-    function enableTarget(x: number, y: number) {
-        targets
-            .filter(t => t.x === x && t.y === y)
-            .forEach(target => target.visible = true);
-    }
-
     function enableAllTargets() {
         targets.forEach(target => {
             target.visible = true;
@@ -47,8 +35,6 @@ export const useEditTargetStore = defineStore('edit-target', () => {
         createTarget,
         addTarget,
         removeTarget,
-        disableTarget,
-        enableTarget,
         enableAllTargets
     }
 })

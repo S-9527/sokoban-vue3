@@ -108,9 +108,9 @@
               </div>
               <div v-else class="relative">
                 <MapEditor/>
-                <PlayerEditor/>
-                <CargoEditor v-for="cargo in cargos" :key="cargo.id" :cargo="cargo"/>
                 <TargetEditor v-for="target in targets" :key="target.id" :target="target"/>
+                <CargoEditor v-for="cargo in cargos" :key="cargo.id" :cargo="cargo"/>
+                <PlayerEditor/>
               </div>
             </div>
 
@@ -332,7 +332,10 @@ const updateEditorFromGameData = (gameData: any) => {
   const targetStore = useEditTargetStore();
   targetStore.targets.splice(0, targetStore.targets.length);
   targetsData.forEach((target: any) => {
-    targetStore.addTarget(targetStore.createTarget({x: target.x, y: target.y}));
+    // 确保目标点始终可见
+    const newTarget = targetStore.createTarget({x: target.x, y: target.y});
+    newTarget.visible = true;
+    targetStore.addTarget(newTarget);
   });
 };
 </script>

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
-import { reactive } from "vue";
+import { reactive, watch } from "vue";
 import { generateId } from "@/utils/id.ts";
-import { Cargo } from "@/store/game/cargo.ts";
+import { useEditTargetStore } from "@/store/editor/editTarget.ts";
 
 export interface EditCargo {
     x: number;
@@ -18,11 +18,22 @@ export const useEditCargoStore = defineStore('edit-cargo', () => {
     }
 
     function addCargo(cargo: EditCargo) {
-        cargos.push(cargo)
+        cargos.push(cargo);
+        // 添加监听器来检测目标点状态变化
+        watch(() => useEditTargetStore().targets, () => {
+            updateCargoOnTargetStatus(cargo);
+        }, { deep: true });
+    }
+
+    function updateCargoOnTargetStatus(cargo: EditCargo) {
+        const targetStore = useEditTargetStore();
+        cargo.onTarget = targetStore.targets.some(target =>
+            target.x === cargo.x && target.y === cargo.y && target.visible
+        );
     }
 
     function modifyCargo({ x, y }: { x: number, y: number }) {
-        const cargo: Cargo =  { id: generateId(), x, y, onTarget: true }
+        const cargo: EditCargo =  { id: generateId(), x, y, onTarget: false }
         cargos.forEach(c => c.x === cargo.x && c.y === cargo.y && Object.assign(c, cargo))
     }
 
@@ -35,6 +46,7 @@ export const useEditCargoStore = defineStore('edit-cargo', () => {
         createCargo,
         modifyCargo,
         removeCargo,
+        updateCargoOnTargetStatus,
         cargos
     }
 })
