@@ -8,17 +8,22 @@
 <script setup lang="ts">
 import keeper from '../../assets/keeper.png'
 import { usePosition } from "@/composables/usePosition.ts";
-import { useEditPlayerStore } from "@/store/editor/editPlayer.ts";
-import { useEditTargetStore } from "@/store/editor/editTarget.ts";
+import { EditTarget, useEditTargetStore } from "@/store/editor/editTarget.ts";
 import { computed } from "vue";
+import { type EditPlayer } from "@/store/editor/editPlayer.ts";
 
-const { player } = useEditPlayerStore();
-const { position } = usePosition(player);
+interface Props {
+  player: EditPlayer;
+}
+
+const props = defineProps<Props>();
+
+const { position } = usePosition(props.player);
 const { targets } = useEditTargetStore();
 
 // 计算玩家是否在目标点上
 const isOnTarget = computed(() => {
-  return targets.some((target: any) => target.x === player.x && target.y === player.y);
+  return targets.some((target: EditTarget) => target.x === props.player.x && target.y === props.player.y);
 });
 
 </script>
