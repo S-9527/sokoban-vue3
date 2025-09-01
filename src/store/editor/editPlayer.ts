@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { reactive } from "vue";
 
-interface EditPlayer {
+export interface EditPlayer {
     x: number;
     y: number;
 }
