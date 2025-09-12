@@ -73,11 +73,12 @@ import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
 import {computed, onMounted, ref} from "vue";
 import {getCoordinates} from "@/utils/id.ts";
 import {exportMapToImage} from "@/utils/imageSnapshot.ts";
+import { createGameDataForExport, updateEditorFromGameData } from "@/composables/useGameData.ts";
 
 const { player } = useEditPlayerStore();
 const { cargos } = useEditCargoStore();
 const { targets } = useEditTargetStore();
-const { map, setRow, setCol, initMap } = useMapEditorStore();
+const { map, initMap } = useMapEditorStore();
 
 // JSON数据和图片预览
 const gameDataJson = ref('');
@@ -111,52 +112,8 @@ const importFromJson = () => {
   const data = JSON.parse(gameDataJson.value);
   console.log('导入的数据:', data);
 
-  // 更新地图尺寸和数据
-  if (data.map && Array.isArray(data.map)) {
-    setRow(data.map.length);
-    setCol(data.map[0].length);
-    initMap(data.map.length, data.map[0].length);
-
-    // 更新地图数据
-    for (let i = 0; i < data.map.length; i++) {
-      for (let j = 0; j < data.map[i].length; j++) {
-        map[i][j] = data.map[i][j];
-      }
-    }
-  }
-
-  // 更新玩家位置
-  if (data.player) {
-    player.x = data.player.x;
-    player.y = data.player.y;
-  }
-
-  // 更新箱子位置
-  if (data.cargos && Array.isArray(data.cargos)) {
-    cargos.splice(0, cargos.length);
-    data.cargos.forEach((cargo: any) => {
-      cargos.push({
-        id: Date.now() + Math.random(),
-        x: cargo.x,
-        y: cargo.y,
-        onTarget: false
-      });
-    });
-  }
-
-  // 更新目标点位置
-  if (data.targets && Array.isArray(data.targets)) {
-    targets.splice(0, targets.length);
-    data.targets.forEach((target: any) => {
-      targets.push({
-        id: Date.now() + Math.random(),
-        x: target.x,
-        y: target.y,
-        visible: true
-      });
-    });
-  }
-
+  // 使用新的函数更新编辑器状态
+  updateEditorFromGameData(data);
   alert('数据导入成功');
 };
 
@@ -173,14 +130,8 @@ const exportToImage = async () => {
     return;
   }
 
-  // 构造地图数据并导出为图片
-  const gameData = {
-    map: JSON.parse(JSON.stringify(map)),
-    player: {x: player.x, y: player.y},
-    cargos: getCoordinates(cargos),
-    targets: getCoordinates(targets)
-  };
-
+  // 使用新的函数创建地图数据并导出为图片
+  const gameData = createGameDataForExport();
   imagePreview.value = await exportMapToImage(gameData);
 };
 </script>

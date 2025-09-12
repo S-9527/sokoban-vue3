@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   test: {
     // 设置测试环境
@@ -44,5 +45,10 @@ export default defineConfig({
       '**/node_modules/**',
       '**/dist/**'
     ]
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
   }
 })
