@@ -54,10 +54,12 @@
 </template>
 
 <script lang="ts" setup>
+import { LevelGameData } from "@/data";
+
 interface Props {
   imageDownloadUrl: string | null;
   uploadedImageUrl: string | null;
-  uploadedGameData: any;
+  uploadedGameData: LevelGameData;
 }
 
 defineProps<Props>();
