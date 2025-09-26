@@ -59,7 +59,7 @@ import { LevelGameData } from "@/data";
 interface Props {
   imageDownloadUrl: string | null;
   uploadedImageUrl: string | null;
-  uploadedGameData: LevelGameData;
+  uploadedGameData: LevelGameData | null;
 }
 
 defineProps<Props>();
