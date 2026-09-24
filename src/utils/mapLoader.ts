@@ -22,9 +22,9 @@ export async function loadMapsFromImages(): Promise<GameData> {
         }
     });
 
-    // 如果没有地图，尝试从本地存储加载或创建默认地图
+    // 如果没有地图，使用默认地图兜底
     if (gameData.length === 0) {
-        createDefaultMap();
+        gameData.push(createDefaultMap());
     }
 
     return gameData;
