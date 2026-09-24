@@ -1,4 +1,4 @@
-name: Vue Deploy
+name: Vue CI & Deploy
 on:
   push:
     branches: [main]
@@ -10,16 +10,26 @@ jobs:
       - name: Checkout Code 🛎️ # 将代码拉取到虚拟机
         uses: actions/checkout@v4
 
-      # 指定 node 版本
+      # 仓库使用 pnpm 管理依赖，安装 pnpm 后再设置 Node 以启用缓存
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'pnpm'
 
-      - name: Install and Build 🔧 # 安装依赖、打包，如果提前已打包好无需这一步
-        run: |
-          npm install
-          npm run build
+      - name: Install dependencies 🔧
+        run: pnpm install --frozen-lockfile
+
+      - name: Test 🧪
+        run: pnpm exec vitest run
+
+      - name: Build 🔧
+        run: pnpm build
 
       - name: Deploy 🚀 # 部署
         uses: JamesIves/github-pages-deploy-action@v4
