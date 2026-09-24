@@ -15,7 +15,8 @@ export const useMapStore = defineStore('map', ()=> {
     let map = reactive<Map>([])
 
     function setupMap(newMap: Map) {
-        map.splice(0, map.length, ...newMap)
+        // 复制行数组，避免与外部数据共享引用
+        map.splice(0, map.length, ...newMap.map(row => [...row]))
     }
 
     function isWall(position: Position) {

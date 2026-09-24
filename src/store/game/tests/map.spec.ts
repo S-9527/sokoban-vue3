@@ -21,6 +21,19 @@ describe("map", () => {
         expect(map).toEqual(newMap);
     });
 
+    it('should not share row references with the source map', () => {
+        const { setupMap, map } = useMapStore();
+
+        const newMap = [
+            [1, 2],
+            [2, 1]
+        ];
+        setupMap(newMap);
+        newMap[0][0] = 2;
+
+        expect(map[0][0]).toBe(1);
+    });
+
     it('should treat out-of-bounds positions as walls', () => {
         const { setupMap, isWall } = useMapStore();
 
