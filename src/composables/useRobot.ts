@@ -16,7 +16,11 @@ export const useRobot = defineStore('Robot', () => {
     const mapStore = useMapStore();
     const gameStore = useGameStore();
 
+    // 会话令牌：新一轮 solve 或 stopSolve 会使进行中的播放循环失效
+    let solveSession = 0;
+
     async function solve() {
+        const session = ++solveSession;
         try {
             console.log(`开始求解第 ${gameStore.game.level} 关...`);
             const startTime = performance.now();
@@ -42,12 +46,17 @@ export const useRobot = defineStore('Robot', () => {
 
             // 执行移动
             for (const [x, y] of solution) {
+                if (session !== solveSession) return;
                 await movePlayer(x, y);
                 await sleep(300);
             }
         } catch (error) {
             console.error('Failed to solve puzzle:', error);
         }
+    }
+
+    function stopSolve() {
+        solveSession++;
     }
 
     function movePlayer(x: number, y: number) {
@@ -64,5 +73,5 @@ export const useRobot = defineStore('Robot', () => {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    return { solve };
+    return { solve, stopSolve };
 });

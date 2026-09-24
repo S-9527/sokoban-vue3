@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, onUnmounted } from 'vue';
 import Map from "@/components/game/Map.vue";
 import Player from "@/components/game/Player.vue";
 import Cargo from "@/components/game/Cargo.vue";
@@ -31,14 +32,25 @@ const { game,setupGame,toNextLevel } = useGameStore();
 const { cargos } = useCargoStore();
 const { targets } = useTargetStore();
 
-const { solve } = useRobot();
+const { solve, stopSolve } = useRobot();
 setupGame(gameData)
 
-setTimeout(solve,1000);
+let solveTimer: number | undefined;
+
+onMounted(() => {
+  solveTimer = window.setTimeout(solve, 1000);
+});
+
+// 离开页面时取消待执行的求解，并打断进行中的自动播放
+onUnmounted(() => {
+  if (solveTimer !== undefined) clearTimeout(solveTimer);
+  stopSolve();
+});
 
 const handleToNextLevel = () => {
-  setTimeout(solve,1000);
   toNextLevel();
+  if (solveTimer !== undefined) clearTimeout(solveTimer);
+  solveTimer = window.setTimeout(solve, 1000);
 }
 
 </script>
