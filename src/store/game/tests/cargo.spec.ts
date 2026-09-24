@@ -64,6 +64,17 @@ describe("cargo", () => {
 
             expect(cargos.length).toBe(0)
         });
+
+        it("should mark on target without changing cargo identity", () => {
+            const { addCargo, createCargo, modifyCargo, cargos } = useCargoStore();
+            const cargo = createCargo({ x: 2, y: 1 });
+            addCargo(cargo);
+
+            modifyCargo({ x: 2, y: 1 });
+
+            expect(cargos[0].id).toBe(cargo.id);
+            expect(cargos[0].onTarget).toBe(true);
+        });
     });
 
 })
