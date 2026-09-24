@@ -30,13 +30,8 @@ export function createGameDataForExport(): LevelGameData {
 export function updateEditorFromGameData(gameData: LevelGameData): void {
   const {map: mapData, player: playerData, cargos: cargosData, targets: targetsData} = gameData;
 
-  // 更新地图尺寸
-  const {setRow, setCol, initMap, resetMap} = useMapEditorStore();
-  setRow(mapData.length);
-  setCol(mapData[0].length);
-
-  // 重置地图并重新初始化
-  resetMap();
+  // 重建地图并设置尺寸
+  const { initMap } = useMapEditorStore();
   initMap(mapData.length, mapData[0].length);
 
   // 更新地图数据

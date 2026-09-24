@@ -19,6 +19,25 @@ describe("mapEdit", () => {
         expect(map[0].length).toBe(col);
     });
 
+    it('should not duplicate rows when initMap is called repeatedly', () => {
+        const {initMap, map} = useMapEditorStore()
+
+        initMap();
+        initMap();
+
+        expect(map.length).toBe(8);
+        expect(map[0].length).toBe(8);
+    });
+
+    it('should not throw when updating rows or cols on an empty map', () => {
+        const {updateMapRow, updateMapCol} = useMapEditorStore()
+
+        expect(() => {
+            updateMapRow();
+            updateMapCol();
+        }).not.toThrow();
+    });
+
     describe("row", () => {
         it("should add a line when increase", () => {
             const {updateMapRow, setRow, initMap, map} = useMapEditorStore();

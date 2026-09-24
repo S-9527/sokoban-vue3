@@ -8,17 +8,19 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
     const row = ref<number>(8);
     const col = ref<number>(8);
 
+    // 幂等：无论调用多少次都重建为 row x col 的空地图
     function initMap(_row?: number, _col?: number) {
         row.value = _row ?? row.value;
         col.value = _col ?? col.value;
 
+        map.splice(0, map.length);
         for (let i = 0; i < row.value; i++) {
-            let cells = new Array(col.value).fill(MapTile.EMPTY);
-            map.push(cells);
+            map.push(new Array(col.value).fill(MapTile.EMPTY));
         }
     }
 
     function updateMapRow() {
+        if (map.length === 0 || !map[0]) return;
         const oldRow = map.length;
         const col = map[0].length;
 
@@ -37,6 +39,7 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
     }
 
     function updateMapCol() {
+        if (map.length === 0 || !map[0]) return;
         const oldCol = map[0].length;
         if (col.value > oldCol) {
             const diff = col.value - oldCol;
@@ -63,15 +66,6 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
         col.value = _col;
     }
 
-    // 添加重置地图功能
-    function resetMap() {
-        map.splice(0, map.length);
-        for (let i = 0; i < row.value; i++) {
-            let cells = new Array(col.value).fill(MapTile.EMPTY);
-            map.push(cells);
-        }
-    }
-
     return {
         map,
         row,
@@ -80,7 +74,6 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
         setRow,
         updateMapCol,
         updateMapRow,
-        initMap,
-        resetMap
+        initMap
     }
 })

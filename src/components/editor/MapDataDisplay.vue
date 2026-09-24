@@ -70,7 +70,7 @@ import {useEditPlayerStore} from "@/store/editor/editPlayer.ts";
 import {useEditCargoStore} from "@/store/editor/editCargo.ts";
 import {useEditTargetStore} from "@/store/editor/editTarget.ts";
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
-import {computed, onMounted, ref} from "vue";
+import {computed, ref} from "vue";
 import {getCoordinates} from "@/utils/id.ts";
 import {exportMapToImage} from "@/utils/imageSnapshot.ts";
 import { createGameDataForExport, updateEditorFromGameData } from "@/composables/useGameData.ts";
@@ -78,16 +78,11 @@ import { createGameDataForExport, updateEditorFromGameData } from "@/composables
 const { player } = useEditPlayerStore();
 const { cargos } = useEditCargoStore();
 const { targets } = useEditTargetStore();
-const { map, initMap } = useMapEditorStore();
+const { map } = useMapEditorStore();
 
 // JSON数据和图片预览
 const gameDataJson = ref('');
 const imagePreview = ref<string | null>(null);
-
-// 确保在组件挂载时初始化地图
-onMounted(() => {
-  initMap();
-});
 
 // 当前游戏数据
 const currentGameData = computed(() => ({
