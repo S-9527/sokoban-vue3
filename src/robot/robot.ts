@@ -29,15 +29,18 @@ export class Puzzle {
         return this._boxes.some(box => box[0] === pos[0] && box[1] === pos[1]);
     }
 
+    // 检查某个位置是否是墙（越界按墙处理）
+    isWallAt(x: number, y: number): boolean {
+        if (y < 0 || y >= this._map.length || x < 0 || x >= this._map[0].length) {
+            return true;
+        }
+        return this._map[y][x] === MapTile.WALL;
+    }
+
     // 检查某个位置是否可以移动
     canMove(to: Point): boolean {
         const [x, y] = to;
-        // 检查边界
-        if (y < 0 || y >= this._map.length || x < 0 || x >= this._map[0].length) {
-            return false;
-        }
-        // 检查是否是墙
-        return this._map[y][x] !== MapTile.WALL;
+        return !this.isWallAt(x, y);
     }
 
     // 检查是否是死角
@@ -50,10 +53,10 @@ export class Puzzle {
         }
 
         // 检查是否被墙卡住
-        const leftWall = this._map[y][x-1] === MapTile.WALL;
-        const rightWall = this._map[y][x+1] === MapTile.WALL;
-        const topWall = this._map[y-1][x] === MapTile.WALL;
-        const bottomWall = this._map[y+1][x] === MapTile.WALL;
+        const leftWall = this.isWallAt(x-1, y);
+        const rightWall = this.isWallAt(x+1, y);
+        const topWall = this.isWallAt(x, y-1);
+        const bottomWall = this.isWallAt(x, y+1);
 
         // 如果箱子被墙角卡住，且不在目标点上，则是死角
         return (leftWall && topWall) || (leftWall && bottomWall) ||
