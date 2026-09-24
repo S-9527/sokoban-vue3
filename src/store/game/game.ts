@@ -34,7 +34,10 @@ export const useGameStore = defineStore("game",() => {
     }
 
     function toNextLevel() {
-        game.level += 1;
+        if (!_gameData || _gameData.length === 0) return;
+
+        // 最后一关之后回到第 1 关，避免越界取关卡数据
+        game.level = game.level >= _gameData.length ? 1 : game.level + 1;
         game.isGameCompleted = false;
         setupLevel();
     }

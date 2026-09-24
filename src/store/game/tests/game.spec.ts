@@ -146,6 +146,18 @@ describe("game", () => {
         expectSetupLevelGameData(secondLevelGameData);
     });
 
+    it("should wrap to first level after the last level", () => {
+        const { setupGame, toNextLevel, game } = useGameStore();
+
+        setupGame(gameData);
+        game.level = gameData.length;
+
+        toNextLevel();
+
+        expect(game.level).toBe(1);
+        expectSetupLevelGameData(firstLevelGameData);
+    });
+
     it("should be reset game completed when to next level", () => {
         const { setupGame, toNextLevel, game } = useGameStore();
         game.isGameCompleted = true;
