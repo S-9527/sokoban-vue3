@@ -5,7 +5,6 @@ import { usePlayerStore } from "./player.ts";
 import { useMapStore } from "./map.ts";
 import { useTargetStore } from "./target.ts";
 import { GameData } from "@/data";
-import JSConfetti from "js-confetti";
 interface Game {
     isGameCompleted: boolean,
     level: number
@@ -22,10 +21,6 @@ export const useGameStore = defineStore("game",() => {
     function detectionGameCompleted() {
         const { cargos } = useCargoStore();
         game.isGameCompleted = cargos.every((cargo) => cargo.onTarget);
-        if (game.isGameCompleted && globalThis.constructor.name === 'Window') {
-            const confetti = new JSConfetti()
-            confetti.addConfetti()
-        }
     }
 
     function setupGame(gameData: GameData) {

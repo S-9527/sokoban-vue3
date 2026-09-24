@@ -20,7 +20,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import JSConfetti from 'js-confetti';
 import Map from "@/components/game/Map.vue";
 import Player from "@/components/game/Player.vue";
 import Cargo from "@/components/game/Cargo.vue";
@@ -35,6 +36,14 @@ const { cargos } = useCargoStore();
 const { targets } = useTargetStore();
 
 const isGameNotStarted = ref(false);
+
+// 过关时播放彩带（视图层关注点，confetti 实例复用）
+let confetti: JSConfetti | undefined;
+watch(() => game.isGameCompleted, (completed) => {
+  if (!completed) return;
+  confetti ??= new JSConfetti();
+  confetti.addConfetti();
+});
 
 // 在组件挂载时加载地图数据
 onMounted(async () => {
