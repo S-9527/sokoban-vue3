@@ -19,7 +19,12 @@ export const useMapStore = defineStore('map', ()=> {
     }
 
     function isWall(position: Position) {
-        return map[position.y][position.x] === MapTile.WALL
+        const row = map[position.y];
+        // 越界视为墙，避免走出地图边缘时崩溃
+        if (!row) return true;
+        const tile = row[position.x];
+        if (tile === undefined) return true;
+        return tile === MapTile.WALL
     }
 
 

@@ -20,4 +20,20 @@ describe("map", () => {
 
         expect(map).toEqual(newMap);
     });
+
+    it('should treat out-of-bounds positions as walls', () => {
+        const { setupMap, isWall } = useMapStore();
+
+        setupMap([
+            [1, 2, 1],
+            [1, 2, 1],
+            [1, 2, 1]
+        ]);
+
+        expect(isWall({ x: 0, y: -1 })).toBe(true);
+        expect(isWall({ x: -1, y: 0 })).toBe(true);
+        expect(isWall({ x: 3, y: 0 })).toBe(true);
+        expect(isWall({ x: 0, y: 3 })).toBe(true);
+        expect(isWall({ x: 1, y: 1 })).toBe(false);
+    });
 })
