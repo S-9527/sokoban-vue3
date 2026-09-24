@@ -19,10 +19,7 @@ export const useEditCargoStore = defineStore('edit-cargo', () => {
 
     function addCargo(cargo: EditCargo) {
         cargos.push(cargo);
-        // 添加监听器来检测目标点状态变化
-        watch(() => useEditTargetStore().targets, () => {
-            updateCargoOnTargetStatus(cargo);
-        }, { deep: true });
+        updateCargoOnTargetStatus(cargo);
     }
 
     function updateCargoOnTargetStatus(cargo: EditCargo) {
@@ -31,6 +28,12 @@ export const useEditCargoStore = defineStore('edit-cargo', () => {
             target.x === cargo.x && target.y === cargo.y && target.visible
         );
     }
+
+    // 目标点变化时统一刷新所有箱子；store 级单个 watcher，
+    // 避免每个箱子各挂一个无法停止的 watcher
+    watch(() => useEditTargetStore().targets, () => {
+        cargos.forEach(cargo => updateCargoOnTargetStatus(cargo));
+    }, { deep: true });
 
     function modifyCargo({ x, y }: { x: number, y: number }) {
         const cargo: EditCargo =  { id: generateId(), x, y, onTarget: false }

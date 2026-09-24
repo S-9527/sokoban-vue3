@@ -1,5 +1,6 @@
 import { it, expect, describe, beforeEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
+import { nextTick } from "vue";
 import { useEditCargoStore } from "../editCargo";
 import { useEditTargetStore } from "../editTarget";
 
@@ -59,6 +60,20 @@ describe("editCargoOnTarget", () => {
 
         // 手动调用更新函数来检查onTarget状态
         cargoStore.updateCargoOnTargetStatus(cargo);
+        expect(cargo.onTarget).toBe(true);
+    });
+
+    it("should refresh cargo onTarget automatically when targets change", async () => {
+        const cargoStore = useEditCargoStore();
+        const targetStore = useEditTargetStore();
+
+        const cargo = cargoStore.createCargo({ x: 1, y: 1 });
+        cargoStore.addCargo(cargo);
+        expect(cargo.onTarget).toBe(false);
+
+        targetStore.addTarget(targetStore.createTarget({ x: 1, y: 1 }));
+        await nextTick();
+
         expect(cargo.onTarget).toBe(true);
     });
 });
