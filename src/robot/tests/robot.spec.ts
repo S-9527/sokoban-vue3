@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { Puzzle } from '../robot';
 import { PuzzleSolver } from '../puzzleSolver';
-import { MapTile, Point } from '@/types/game';
+import { Point } from '@/types/game';
+import { MapTile } from '@/store/game/map';
 
 describe('Puzzle', () => {
     const createTestPuzzle = () => {

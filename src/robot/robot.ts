@@ -1,4 +1,5 @@
-import { Point, MapTile } from "@/types/game.ts";
+import { Point } from "@/types/game.ts";
+import { MapTile } from "@/store/game/map.ts";
 
 export class Puzzle {
     private readonly _map: MapTile[][];

@@ -5,7 +5,8 @@ import { useMapStore } from "@/store/game/map.ts";
 import { defineStore } from "pinia";
 import { Puzzle } from "@/robot/robot.ts";
 import { PuzzleSolver } from "@/robot/puzzleSolver.ts";
-import { Point, MapTile } from "@/types/game.ts";
+import { Point } from "@/types/game.ts";
+import { MapTile } from "@/store/game/map.ts";
 import { useGameStore } from "@/store/game/game.ts";
 
 export const useRobot = defineStore('Robot', () => {
@@ -22,7 +23,7 @@ export const useRobot = defineStore('Robot', () => {
 
             // 转换游戏状态为 Puzzle
             const map = mapStore.map.map(row =>
-                row.map(cell => cell === 1 ? MapTile.WALL : MapTile.FLOOR)
+                row.map(cell => cell === MapTile.WALL ? MapTile.WALL : MapTile.FLOOR)
             );
 
             const puzzle = new Puzzle(
