@@ -21,9 +21,9 @@ export const useRobot = defineStore('Robot', () => {
             console.log(`开始求解第 ${gameStore.game.level} 关...`);
             const startTime = performance.now();
 
-            // 转换游戏状态为 Puzzle
+            // 转换游戏状态为 Puzzle（EMPTY 不可通行，与游戏逻辑保持一致）
             const map = mapStore.map.map(row =>
-                row.map(cell => cell === MapTile.WALL ? MapTile.WALL : MapTile.FLOOR)
+                row.map(cell => cell === MapTile.FLOOR ? MapTile.FLOOR : MapTile.WALL)
             );
 
             const puzzle = new Puzzle(

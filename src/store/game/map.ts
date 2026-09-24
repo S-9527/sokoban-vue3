@@ -24,7 +24,8 @@ export const useMapStore = defineStore('map', ()=> {
         if (!row) return true;
         const tile = row[position.x];
         if (tile === undefined) return true;
-        return tile === MapTile.WALL
+        // 只有 FLOOR 可通行，EMPTY 与 WALL 一样阻挡
+        return tile !== MapTile.FLOOR
     }
 
 

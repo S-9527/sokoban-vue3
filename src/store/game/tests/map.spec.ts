@@ -36,4 +36,15 @@ describe("map", () => {
         expect(isWall({ x: 0, y: 3 })).toBe(true);
         expect(isWall({ x: 1, y: 1 })).toBe(false);
     });
+
+    it('should treat EMPTY tiles as impassable', () => {
+        const { setupMap, isWall } = useMapStore();
+
+        setupMap([
+            [1, 2, 0]
+        ]);
+
+        expect(isWall({ x: 2, y: 0 })).toBe(true);
+        expect(isWall({ x: 1, y: 0 })).toBe(false);
+    });
 })
