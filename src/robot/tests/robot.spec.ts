@@ -3,6 +3,7 @@ import { Puzzle } from '../robot';
 import { PuzzleSolver } from '../puzzleSolver';
 import { Point } from '@/types/game';
 import { MapTile } from '@/store/game/map';
+import { gameData } from '@/data';
 
 describe('Puzzle', () => {
     const createTestPuzzle = () => {
@@ -32,11 +33,6 @@ describe('Puzzle', () => {
         const puzzle = createTestPuzzle();
         expect(puzzle.canMove([1, 1])).toBe(true);
         expect(puzzle.canMove([0, 0])).toBe(false);
-    });
-
-    it('should generate correct state key', () => {
-        const puzzle = createTestPuzzle();
-        expect(puzzle.getStateKey()).toBe('1,1|1,1');
     });
 
     it('should not throw when checking deadlock on a map without border walls', () => {
@@ -100,4 +96,59 @@ describe('PuzzleSolver', () => {
 
         expect(() => PuzzleSolver.solve(puzzle)).toThrow('No solution error');
     });
+});
+
+describe('PuzzleSolver on built-in levels', () => {
+    it('should produce a valid completing solution for every built-in level', () => {
+        gameData.forEach((level, index) => {
+            const map = level.map.map(row =>
+                row.map(cell => cell === MapTile.FLOOR ? MapTile.FLOOR : MapTile.WALL)
+            );
+            const boxes = level.cargos.map(c => [c.x, c.y] as Point);
+            const targets = level.targets.map(t => [t.x, t.y] as Point);
+            const player: Point = [level.player.x, level.player.y];
+
+            const solution = PuzzleSolver.solve(new Puzzle(map, boxes, targets, player));
+
+            const valid = simulateSolution(map, boxes, targets, player, solution);
+            expect(valid, `level ${index + 1} solution should complete the puzzle`).toBe(true);
+        });
+    });
+
+    // 按游戏规则逐步回放解，验证每一步合法且最终覆盖所有目标点
+    function simulateSolution(
+        map: MapTile[][],
+        boxes: Point[],
+        targets: Point[],
+        player: Point,
+        path: Point[]
+    ): boolean {
+        const state = boxes.map(box => [...box] as Point);
+        let cur: Point = [...player] as Point;
+
+        const isWallAt = (x: number, y: number) =>
+            y < 0 || y >= map.length || x < 0 || x >= map[0].length || map[y][x] === MapTile.WALL;
+        const boxAt = (x: number, y: number) => state.find(box => box[0] === x && box[1] === y);
+
+        for (const [nx, ny] of path) {
+            const dx = nx - cur[0];
+            const dy = ny - cur[1];
+            if (Math.abs(dx) + Math.abs(dy) !== 1) return false;
+            if (isWallAt(nx, ny)) return false;
+
+            const box = boxAt(nx, ny);
+            if (box) {
+                const bx = nx + dx;
+                const by = ny + dy;
+                if (isWallAt(bx, by) || boxAt(bx, by)) return false;
+                box[0] = bx;
+                box[1] = by;
+            }
+            cur = [nx, ny];
+        }
+
+        return targets.every(target =>
+            state.some(box => box[0] === target[0] && box[1] === target[1])
+        );
+    }
 });

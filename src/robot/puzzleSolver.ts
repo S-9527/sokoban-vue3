@@ -1,102 +1,133 @@
 import { Puzzle } from "@/robot/robot.ts";
-import { Point, GameState } from "@/types/game.ts";
+import { Point } from "@/types/game.ts";
+
+interface SearchState {
+    boxes: Point[];
+    player: Point;
+    path: Point[];
+}
+
+interface Reachability {
+    cells: Set<string>;
+    prev: Map<string, string>;
+}
 
 export class PuzzleSolver {
     private static readonly DIRECTIONS: Point[] = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
+    // 按"推动"为粒度搜索：状态 = 箱子布局 + 玩家可达区域（规范化），
+    // 玩家在同一区域内的具体位置不影响后续局面，因此合并为一个状态。
+    // 返回值是玩家每一步所在的格子，可直接逐步驱动玩家移动。
     static solve(puzzle: Puzzle): Point[] {
+        if (puzzle.isCompleted()) return [];
+
+        const start: SearchState = {
+            boxes: puzzle.boxes.map(box => [...box] as Point),
+            player: [...puzzle.player] as Point,
+            path: []
+        };
+
         const visited = new Set<string>();
-        const queue: GameState[] = [{
-            puzzle,
-            path: [],
-            cost: this.estimateCost(puzzle)
-        }];
+        const queue: SearchState[] = [start];
 
         while (queue.length > 0) {
             const current = queue.shift()!;
 
-            if (current.puzzle.isCompleted()) {
-                return current.path;
-            }
-
-            const stateKey = current.puzzle.getStateKey();
+            const reach = this.reachable(puzzle, current.boxes, current.player);
+            const stateKey = this.stateKey(current.boxes, reach);
             if (visited.has(stateKey)) continue;
             visited.add(stateKey);
 
-            // 生成所有可能的移动
-            for (const [dx, dy] of this.DIRECTIONS) {
-                const newPlayerPos: Point = [
-                    current.puzzle.player[0] + dx,
-                    current.puzzle.player[1] + dy
-                ];
+            for (const box of current.boxes) {
+                for (const [dx, dy] of this.DIRECTIONS) {
+                    const from: Point = [box[0] - dx, box[1] - dy];
+                    const to: Point = [box[0] + dx, box[1] + dy];
 
-                if (!current.puzzle.canMove(newPlayerPos)) continue;
+                    // 玩家必须能走到箱子的后方才能推
+                    if (!reach.cells.has(this.cellKey(from))) continue;
+                    if (!puzzle.canMove(to) || this.hasBox(current.boxes, to)) continue;
 
-                if (current.puzzle.hasBox(newPlayerPos)) {
-                    const newBoxPos: Point = [
-                        newPlayerPos[0] + dx,
-                        newPlayerPos[1] + dy
+                    // 推进死角的状态直接剪枝
+                    if (puzzle.isDeadlock(to)) continue;
+
+                    const newBoxes = current.boxes.map(b =>
+                        b[0] === box[0] && b[1] === box[1] ? to : b
+                    );
+                    const newPlayer: Point = [box[0], box[1]];
+                    const newPath: Point[] = [
+                        ...current.path,
+                        ...this.walkPath(reach, from),
+                        newPlayer
                     ];
 
-                    if (!current.puzzle.canMove(newBoxPos) ||
-                        current.puzzle.hasBox(newBoxPos)) continue;
+                    if (this.isCompleted(puzzle, newBoxes)) {
+                        return newPath;
+                    }
 
-                    // 检查是否会造成死角
-                    if (current.puzzle.isDeadlock(newBoxPos)) continue;
-
-                    const newBoxes = current.puzzle.boxes.map((box: [number, number]) =>
-                        box[0] === newPlayerPos[0] && box[1] === newPlayerPos[1]
-                            ? newBoxPos
-                            : box
-                    );
-
-                    const newPuzzle = current.puzzle.createNewState(newPlayerPos, newBoxes);
-                    const newState: GameState = {
-                        puzzle: newPuzzle,
-                        path: [...current.path, newPlayerPos],
-                        cost: current.path.length + this.estimateCost(newPuzzle)
-                    };
-                    queue.push(newState);
-                } else {
-                    const newPuzzle = current.puzzle.createNewState(
-                        newPlayerPos,
-                        current.puzzle.boxes
-                    );
-                    const newState: GameState = {
-                        puzzle: newPuzzle,
-                        path: [...current.path, newPlayerPos],
-                        cost: current.path.length + this.estimateCost(newPuzzle)
-                    };
-                    queue.push(newState);
+                    queue.push({ boxes: newBoxes, player: newPlayer, path: newPath });
                 }
             }
-
-            // 按照估计成本排序
-            queue.sort((a, b) => a.cost - b.cost);
         }
 
-        throw new Error("No solution error`");
+        throw new Error("No solution error");
     }
 
-    private static estimateCost(puzzle: Puzzle): number {
-        let totalCost = 0;
-        for (const box of puzzle.boxes) {
-            let minDistance = Infinity;
-            for (const target of puzzle.targets) {
-                const distance = Math.abs(target[0] - box[0]) +
-                               Math.abs(target[1] - box[1]);
-                minDistance = Math.min(minDistance, distance);
+    // 计算玩家在给定箱子布局下的可达区域，prev 用于回溯行走路径
+    private static reachable(puzzle: Puzzle, boxes: Point[], player: Point): Reachability {
+        const cells = new Set<string>([this.cellKey(player)]);
+        const prev = new Map<string, string>();
+        const queue: Point[] = [[...player] as Point];
+
+        while (queue.length > 0) {
+            const [x, y] = queue.shift()!;
+            for (const [dx, dy] of this.DIRECTIONS) {
+                const next: Point = [x + dx, y + dy];
+                const nextKey = this.cellKey(next);
+                if (cells.has(nextKey)) continue;
+                if (!puzzle.canMove(next) || this.hasBox(boxes, next)) continue;
+
+                cells.add(nextKey);
+                prev.set(nextKey, this.cellKey([x, y]));
+                queue.push(next);
             }
-            totalCost += minDistance;
         }
 
-        // 增加玩家到最近箱子的距离作为成本
-        const playerToBoxDistance = Math.min(...puzzle.boxes.map(box => 
-            Math.abs(box[0] - puzzle.player[0]) + 
-            Math.abs(box[1] - puzzle.player[1])
-        ));
-        
-        return totalCost + playerToBoxDistance;
+        return { cells, prev };
+    }
+
+    // 状态的唯一标识：箱子布局 + 玩家可达区域的最小格子（规范化玩家位置）
+    private static stateKey(boxes: Point[], reach: Reachability): string {
+        let min: string | null = null;
+        for (const key of reach.cells) {
+            if (min === null || key < min) min = key;
+        }
+        const boxKey = boxes.map(b => `${b[0]},${b[1]}`).sort().join('|');
+        return `${min}|${boxKey}`;
+    }
+
+    // 回溯从玩家起点到 target 的行走路径（不含起点，含终点）
+    private static walkPath(reach: Reachability, target: Point): Point[] {
+        const path: Point[] = [];
+        let key = this.cellKey(target);
+        while (reach.prev.has(key)) {
+            const [x, y] = key.split(',').map(Number);
+            path.push([x, y]);
+            key = reach.prev.get(key)!;
+        }
+        return path.reverse();
+    }
+
+    private static hasBox(boxes: Point[], pos: Point): boolean {
+        return boxes.some(box => box[0] === pos[0] && box[1] === pos[1]);
+    }
+
+    private static isCompleted(puzzle: Puzzle, boxes: Point[]): boolean {
+        return puzzle.targets.every(target =>
+            boxes.some(box => box[0] === target[0] && box[1] === target[1])
+        );
+    }
+
+    private static cellKey(pos: Point): string {
+        return `${pos[0]},${pos[1]}`;
     }
 }
-

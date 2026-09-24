@@ -63,18 +63,4 @@ export class Puzzle {
         return (leftWall && topWall) || (leftWall && bottomWall) ||
             (rightWall && topWall) || (rightWall && bottomWall);
     }
-
-    // 创建新的谜题状态
-    createNewState(newPlayer: Point, newBoxes: Point[]): Puzzle {
-        return new Puzzle(this._map, newBoxes, this._targets, newPlayer);
-    }
-
-    // 获取状态的唯一标识
-    getStateKey(): string {
-        const boxKey = this._boxes
-            .map(b => `${b[0]},${b[1]}`)
-            .sort()
-            .join('|');
-        return `${this._player[0]},${this._player[1]}|${boxKey}`;
-    }
 }
