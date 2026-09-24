@@ -17,6 +17,10 @@ export const usePlayerStore = defineStore('player', ()=> {
     })
 
     function _move(dx: number, dy: number) {
+        const gameStore = useGameStore();
+        // 过关后锁定操作，避免破坏终局画面
+        if (gameStore.game.isGameCompleted) return;
+
         const nextPosition = {
             x: player.x + dx,
             y: player.y + dy
@@ -35,8 +39,7 @@ export const usePlayerStore = defineStore('player', ()=> {
         player.x += dx;
         player.y += dy;
 
-        const { detectionGameCompleted } = useGameStore();
-        detectionGameCompleted();
+        gameStore.detectionGameCompleted();
     }
 
     function movePlayerToLeft() {

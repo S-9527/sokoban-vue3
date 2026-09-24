@@ -1,5 +1,6 @@
 import { it, describe, expect, beforeEach } from "vitest";
 import { usePlayerStore } from "../player.ts";
+import { useGameStore } from "../game.ts";
 import { createPinia, setActivePinia } from "pinia";
 import { handleKeyup } from "@/components/event/event.ts";
 import { useMapStore } from "../map.ts";
@@ -253,6 +254,30 @@ describe('player', () => {
 
             expect(player.x).toBe(1);
             expect(cargo.x).toBe(2);
+        });
+    })
+
+    describe('after game completed', () => {
+        beforeEach(() => {
+            const {setupMap} = useMapStore();
+            setupMap([
+                [1, 1, 1],
+                [1, 2, 1],
+                [1, 1, 1],
+            ]);
+        })
+
+        it('should not move when game is completed', () => {
+            const { player, movePlayerToLeft } = usePlayerStore();
+            player.x = 1;
+            player.y = 1;
+
+            const { game } = useGameStore();
+            game.isGameCompleted = true;
+
+            movePlayerToLeft();
+
+            expect(player.x).toBe(1);
         });
     })
 })
