@@ -1,6 +1,6 @@
 <template>
   <div
-      class="w-full lg:w-80 xl:w-96 flex-shrink-0 border-l border-gray-200 bg-white flex flex-col overflow-hidden">
+      class="w-full lg:w-80 xl:w-96 shrink-0 border-l border-gray-200 bg-white flex flex-col overflow-hidden">
     <div class="flex border-b border-gray-200">
       <button v-for="tab in tabs"
               :key="tab.id"

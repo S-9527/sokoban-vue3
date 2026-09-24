@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="imageDownloadUrl || uploadedImageUrl"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
           <h3 class="text-xl font-semibold text-gray-900">
