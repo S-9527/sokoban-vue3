@@ -35,11 +35,6 @@ export const useEditCargoStore = defineStore('edit-cargo', () => {
         cargos.forEach(cargo => updateCargoOnTargetStatus(cargo));
     }, { deep: true });
 
-    function modifyCargo({ x, y }: { x: number, y: number }) {
-        const cargo: EditCargo =  { id: generateId(), x, y, onTarget: false }
-        cargos.forEach(c => c.x === cargo.x && c.y === cargo.y && Object.assign(c, cargo))
-    }
-
     function removeCargo(cargo: EditCargo) {
         cargos.splice(cargos.indexOf(cargo), 1)
     }
@@ -47,7 +42,6 @@ export const useEditCargoStore = defineStore('edit-cargo', () => {
     return {
         addCargo,
         createCargo,
-        modifyCargo,
         removeCargo,
         updateCargoOnTargetStatus,
         cargos

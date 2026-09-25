@@ -73,16 +73,8 @@ export const cargoEditElement: EditElement = {
     img: cargo,
     canDrag: false,
     execute: (position) => {
-        const { addCargo, createCargo, modifyCargo } = useEditCargoStore();
-        const { targets} = useEditTargetStore();
+        const { addCargo, createCargo } = useEditCargoStore();
         addCargo(createCargo({ x: position.x, y: position.y }));
-
-        // 检查该位置是否有目标点，如果有则更新箱子状态
-        targets.forEach(target => {
-            if (target.x === position.x && target.y === position.y) {
-                modifyCargo(target);
-            }
-        })
     }
 }
 

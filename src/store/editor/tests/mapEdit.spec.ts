@@ -1,6 +1,7 @@
 import {beforeEach, describe, it, expect} from "vitest";
 import {createPinia, setActivePinia} from "pinia";
 import {useMapEditorStore} from "@/store/editor/mapEditor.ts";
+import {MapTile} from "@/store/game/map.ts";
 
 describe("mapEdit", () => {
     beforeEach(() => {
@@ -27,6 +28,27 @@ describe("mapEdit", () => {
 
         expect(map.length).toBe(8);
         expect(map[0].length).toBe(8);
+    });
+
+    it('should initialize an empty map when ensuring initialization', () => {
+        const {ensureMapInitialized, map} = useMapEditorStore();
+
+        ensureMapInitialized();
+
+        expect(map).toHaveLength(8);
+        expect(map[0]).toHaveLength(8);
+    });
+
+    it('should preserve an existing map when ensuring initialization', () => {
+        const {ensureMapInitialized, initMap, map} = useMapEditorStore();
+        initMap(2, 2);
+        map[0][0] = MapTile.FLOOR;
+
+        ensureMapInitialized();
+
+        expect(map).toHaveLength(2);
+        expect(map[0]).toHaveLength(2);
+        expect(map[0][0]).toBe(MapTile.FLOOR);
     });
 
     it('should not throw when updating rows or cols on an empty map', () => {

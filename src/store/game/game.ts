@@ -20,11 +20,16 @@ export const useGameStore = defineStore("game",() => {
 
     function detectionGameCompleted() {
         const { cargos } = useCargoStore();
-        game.isGameCompleted = cargos.every((cargo) => cargo.onTarget);
+        const { targets } = useTargetStore();
+        game.isGameCompleted = cargos.length > 0 &&
+            cargos.length === targets.length &&
+            cargos.every((cargo) => cargo.onTarget);
     }
 
     function setupGame(gameData: GameData) {
         _gameData = gameData;
+        game.level = 1;
+        game.isGameCompleted = false;
         setupLevel();
     }
 
@@ -38,6 +43,8 @@ export const useGameStore = defineStore("game",() => {
     }
 
     function setupLevel() {
+        if (!_gameData || _gameData.length === 0) return;
+
         const levelGameData = _gameData[game.level - 1];
 
         const { player } = usePlayerStore();
@@ -68,6 +75,8 @@ export const useGameStore = defineStore("game",() => {
             addTarget(createTarget(target));
         })
 
+        // 关卡可能初始即完成；setup 后必须重新同步状态
+        detectionGameCompleted();
      }
 
     return {

@@ -75,6 +75,19 @@ describe("editElement", () => {
         expect(cargos[0].y).toBe(position.y);
     });
 
+    it('should mark a cargo as on target when placing it through the editor action', () => {
+        const { targets, createTarget, addTarget } = useEditTargetStore();
+        const { cargos } = useEditCargoStore();
+        const position = { x: 1, y: 1 };
+        addTarget(createTarget(position));
+
+        cargoEditElement.execute(position);
+
+        expect(targets).toHaveLength(1);
+        expect(cargos).toHaveLength(1);
+        expect(cargos[0].onTarget).toBe(true);
+    });
+
     it("should add a target when current selected element is target", () => {
         const { targets } = useEditTargetStore();
         const { getCurrentSelectedEditElement, setCurrentSelectedEditElement } =

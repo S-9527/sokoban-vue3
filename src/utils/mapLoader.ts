@@ -87,6 +87,6 @@ function createDefaultMap(): LevelGameData {
         ],
         player: {x: 2, y: 2},
         cargos: [{x: 3, y: 2}],
-        targets: [{x: 1, y: 1}]
+        targets: [{x: 3, y: 1}]
     };
 }

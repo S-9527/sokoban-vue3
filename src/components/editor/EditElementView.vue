@@ -87,11 +87,12 @@ import {
 import { useMapEditorStore } from "@/store/editor/mapEditor.ts";
 import { computed, toRefs, watchEffect } from "vue";
 
-const { initMap, updateMapRow, updateMapCol } = useMapEditorStore();
+const { ensureMapInitialized, updateMapRow, updateMapCol } = useMapEditorStore();
 const { row, col } = toRefs(useMapEditorStore())
 const { getCurrentSelectedEditElement } = useEditElementStore();
 
-initMap();
+// 仅首次进入编辑器时初始化，路由重新挂载时保留未保存的编辑状态
+ensureMapInitialized();
 
 watchEffect(() => {
   if (!row.value) return;

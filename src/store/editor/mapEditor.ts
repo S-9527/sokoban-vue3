@@ -19,6 +19,10 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
         }
     }
 
+    function ensureMapInitialized() {
+        if (map.length === 0) initMap();
+    }
+
     function updateMapRow() {
         if (map.length === 0 || !map[0]) return;
         const oldRow = map.length;
@@ -74,6 +78,7 @@ export const useMapEditorStore = defineStore('mapEditor', () => {
         setRow,
         updateMapCol,
         updateMapRow,
-        initMap
+        initMap,
+        ensureMapInitialized
     }
 })

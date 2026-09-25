@@ -27,12 +27,14 @@ import { useTargetStore } from "@/store/game/target.ts";
 import { useGameStore } from "@/store/game/game.ts";
 import { gameData } from "@/data";
 import { useRobot } from "@/composables/useRobot.ts";
+import { useGameConfetti } from "@/composables/useGameConfetti.ts";
 
 const { game,setupGame,toNextLevel } = useGameStore();
 const { cargos } = useCargoStore();
 const { targets } = useTargetStore();
 
 const { solve, stopSolve } = useRobot();
+useGameConfetti();
 setupGame(gameData)
 
 let solveTimer: number | undefined;
